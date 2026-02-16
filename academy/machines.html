@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Machines | Legion Academy</title>
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,container-queries"></script>
+    <script src="../encryption_vault.js"></script>
+    <script type="module" src="../protection.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, onSnapshot, doc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+            measurementId: "G-GKNQ27DHDR"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        signInAnonymously(auth).catch(e => console.error("Auth Error", e));
+
+        window.firebaseAcademy = { db, collection, query, where, getDocs, onSnapshot, doc, setDoc, updateDoc, serverTimestamp };
+        window.firebaseEnabled = true;
+    </script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff002b",
+                        "bg-dark": "#050505",
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"],
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            background: #050505;
+            color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 0, 43, 0.3);
+            box-shadow: 0 0 30px rgba(255, 0, 43, 0.1);
+        }
+
+        .shadow-glow {
+            box-shadow: 0 0 20px rgba(255, 0, 43, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 0, 43, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff002b;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-10">
+    <!-- Notification Area -->
+    <div id="notification-area" class="fixed top-6 right-6 z-[9999] flex flex-col gap-4"></div>
+
+    <div class="max-w-7xl mx-auto space-y-10">
+        <!-- Header -->
+        <header class="flex justify-between items-center animate-fadeInDown">
+            <div>
+                <h1 class="text-5xl font-black text-white uppercase tracking-tighter">Hack The Box</h1>
+                <p class="text-primary text-xs font-black uppercase tracking-widest mt-2">Pwn Machines & Capture Flags
+                </p>
+            </div>
+            <a href="index.html"
+                class="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black text-white uppercase hover:border-primary/30 transition-all">
+                <span class="material-symbols-rounded text-sm align-middle">arrow_back</span> Back to Academy
+            </a>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fadeInUp">
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Active Machines</p>
+                <h3 id="activeMachines" class="text-3xl font-black text-white mt-2">-</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Owned Machines</p>
+                <h3 id="ownedMachines" class="text-3xl font-black text-primary mt-2">-</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">User Flags</p>
+                <h3 id="userFlags" class="text-3xl font-black text-green-500 mt-2">-</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Root Flags</p>
+                <h3 id="rootFlags" class="text-3xl font-black text-yellow-500 mt-2">-</h3>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex gap-4 overflow-x-auto pb-2 animate-fadeIn">
+            <button onclick="filterMachines('all')" id="filter-all"
+                class="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow whitespace-nowrap">All</button>
+            <button onclick="filterMachines('easy')" id="filter-easy"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white whitespace-nowrap">Easy</button>
+            <button onclick="filterMachines('medium')" id="filter-medium"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white whitespace-nowrap">Medium</button>
+            <button onclick="filterMachines('hard')" id="filter-hard"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white whitespace-nowrap">Hard</button>
+            <button onclick="filterMachines('insane')" id="filter-insane"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white whitespace-nowrap">Insane</button>
+        </div>
+
+        <!-- Machines Grid -->
+        <div id="machinesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeInUp delay-100">
+            <!-- Dynamic Content loaded by main.js -->
+            <div class="col-span-full py-20 text-center">
+                <div
+                    class="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin">
+                </div>
+                <p class="text-xs text-gray-500 font-black uppercase mt-4">Syncing Machine Database...</p>
+            </div>
+        </div>
+
+        <!-- VM Section Helper -->
+        <div id="activeVMDetails"
+            class="hidden glass-card p-6 border-primary/20 bg-primary/5 animate-slideInUp fixed bottom-6 right-6 w-96 z-50">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Active Session
+                </h3>
+                <button onclick="terminateVM()"
+                    class="text-xs text-red-500 font-black uppercase hover:underline">TERMINATE</button>
+            </div>
+            <div class="space-y-2 text-xs font-mono">
+                <div class="flex justify-between"><span class="text-gray-500">IP ADDRESS</span> <span id="vmIP"
+                        class="text-white">10.10.11.245</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">TIME REMAINING</span> <span id="vmTimer"
+                        class="text-primary">00:00</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Flag Modal -->
+    <div id="flagModal"
+        class="fixed inset-0 z-[6000] hidden items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div class="glass-card max-w-md w-full p-10 border-primary/20 space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-black text-white uppercase">Submit Flag</h3>
+                <button
+                    onclick="document.getElementById('flagModal').classList.add('hidden'); document.getElementById('flagModal').classList.remove('flex');"
+                    class="text-gray-500 hover:text-white">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Machine</label>
+                    <p id="flagMachineName" class="text-white font-black mt-1"></p>
+                </div>
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Flag Type</label>
+                    <select id="flagType"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white mt-2 focus:border-primary outline-none">
+                        <option value="user">User Flag</option>
+                        <option value="root">Root Flag</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Flag Hash</label>
+                    <input type="text" id="flagInput" placeholder="Enter flag hash..."
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white mt-2 font-mono focus:border-primary outline-none">
+                </div>
+                <button onclick="submitMachineFlag()"
+                    class="w-full py-4 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow hover:brightness-110 transition-all">
+                    Submit Flag
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wrapper Script for Page Specific Logic -->
+    <script>
+        // Store current machine for flag submission
+        window.currentFlagMachineId = null;
+
+        window.openFlagModal = (machineId) => {
+            const m = academyMachines.find(m => m.id === machineId);
+            if (m) {
+                window.currentFlagMachineId = machineId;
+                document.getElementById('flagMachineName').innerText = m.name;
+                const modal = document.getElementById('flagModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        };
+
+        window.submitMachineFlag = async () => {
+            const type = document.getElementById('flagType').value;
+            const input = document.getElementById('flagInput').value;
+            if (!window.currentFlagMachineId || !input) return;
+
+            // Hardcoded validation for demo - in real app, check hash against backend
+            showNotice("Validating...", "Checking hash against database...", "info");
+
+            setTimeout(async () => {
+                // Assume success for demo
+                showNotice("Success", "Flag captured!", "success");
+                document.getElementById('flagModal').classList.add('hidden');
+                document.getElementById('flagModal').classList.remove('flex');
+
+                // Update local progress
+                if (!userProgress[window.currentFlagMachineId]) userProgress[window.currentFlagMachineId] = {};
+                // Use consistent structure
+                // userProgress for machines is stored separately or merged? 
+                // In main.js we used 'userProgress' for courses. 
+                // We should probably save extended data.
+                // For now, let's just trigger a save (which might not save this specific machine data if main.js saveAcademyData isn't aware).
+                // We need to update main.js's saveAcademyData to handle machine progress if we want persistence.
+                // Or we rely on 'userChallenges' if we treat machine flags as challenges.
+
+                // For now, visual update only
+            }, 1000);
+        };
+
+        window.filterMachines = (type) => {
+            document.querySelectorAll('[id^=filter-]').forEach(b => {
+                b.classList.remove('bg-primary', 'shadow-glow', 'text-white');
+                b.classList.add('bg-white/5', 'text-gray-500');
+            });
+            document.getElementById(`filter-${type}`).classList.add('bg-primary', 'shadow-glow', 'text-white');
+            document.getElementById(`filter-${type}`).classList.remove('bg-white/5', 'text-gray-500');
+
+            const grid = document.getElementById('machinesGrid');
+            let list = academyMachines;
+            if (type !== 'all') list = list.filter(m => m.difficulty.toLowerCase() === type);
+
+            grid.innerHTML = list.map(m => `
+                <div class="glass-card p-6 border-white/5 hover:border-primary/40 transition-all cursor-pointer group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl text-white">
+                            <span class="material-symbols-rounded">${m.icon || 'computer'}</span>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-${m.difficulty === 'Easy' ? 'green' : 'red'}-500/10 text-${m.difficulty === 'Easy' ? 'green' : 'red'}-500 text-[9px] font-black uppercase">${m.difficulty}</span>
+                    </div>
+                    <h4 class="text-sm font-black text-white uppercase">${m.name}</h4>
+                    <p class="text-[10px] text-gray-500 uppercase mt-1">${m.os || 'Linux'} • ${m.points || 20} PTS</p>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="createVM('${m.name}')" class="flex-1 py-3 bg-primary/10 text-primary border border-primary/20 rounded-xl text-[9px] font-black uppercase hover:bg-primary hover:text-white transition-all">Deploy</button>
+                        <button onclick="openFlagModal('${m.id}')" class="px-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10"><span class="material-symbols-rounded text-sm text-white">flag</span></button>
+                    </div>
+                </div>
+            `).join('');
+        };
+    </script>
+
+    <!-- Main Logic -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

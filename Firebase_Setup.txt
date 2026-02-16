@@ -1,0 +1,34 @@
+# Deathly Legion - Firebase Setup Guide
+
+To make your application fully functional (saving data and uploading files), follow these steps:
+
+1.  **Create a Firebase Project:**
+    -   Go to [Firebase Console](https://console.firebase.google.com/).
+    -   Click "Add project" and name it (e.g., "Deathly Legion").
+
+2.  **Add a Web App:**
+    -   In your project overview, click the `</>` (Web) icon.
+    -   Register your app name.
+    -   Copy the `firebaseConfig` object values.
+
+3.  **Update index.html:**
+    -   Open `index.html` and find the `const firebaseConfig = { ... };` section.
+    -   Replace the placeholder values with your real keys.
+
+4.  **Enable Firestore (Database):**
+    -   In the Firebase menu, go to **Firestore Database**.
+    -   Click "Create database".
+    -   Choose "Start in test mode" (to allow initial writes) and click "Next/Enable".
+    -   Create a collection named `applications` (optional, the code will create it automatically).
+
+5.  **Enable Storage (Files):**
+    -   In the Firebase menu, go to **Storage**.
+    -   Click "Get started".
+    -   Choose "Start in test mode" and click "Next/Done".
+
+6.  **CORS & Rules (For Production):**
+    -   Ensure your Firestore/Storage rules allow reading/writing from your domain.
+    -   For local testing, "Test Mode" is enough.
+
+---
+Your application is now 100% functional with a real backend!

@@ -1,0 +1,20 @@
+{
+    "network_name": "LEGION NETWORK CDN",
+    "version": "1.0.0-BETA",
+    "status": "OPERATIONAL",
+    "nodes": [
+        "tactical-node-01.legion",
+        "command-center.legion",
+        "shadow-relay.legion"
+    ],
+    "protocols": [
+        "DDOS_SHIELD_V6",
+        "QUANTUM_ENCRYPTION_V2",
+        "XSS_SANITY_V1"
+    ],
+    "endpoints": {
+        "protection": "/protection.js",
+        "vault": "/encryption_vault.js",
+        "logo": "/logo.png"
+    }
+}

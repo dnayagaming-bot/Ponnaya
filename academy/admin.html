@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin Dashboard | Academy</title>
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff002b",
+                        "bg-dark": "#050505",
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"],
+                    }
+                },
+            },
+        }
+    </script>
+    <script src="../encryption_vault.js"></script>
+    <script type="module" src="../protection.js"></script>
+
+    <style>
+        body {
+            background: #050505;
+            color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .glass-card {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 0, 43, 0.2);
+            background: rgba(15, 15, 15, 0.8);
+        }
+
+        .shadow-glow {
+            box-shadow: 0 0 30px rgba(255, 0, 43, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff002b;
+            border-radius: 10px;
+        }
+
+        .tab-btn.active {
+            background-color: #ff002b;
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 43, 0.3);
+        }
+    </style>
+</head>
+
+<body class="p-10 lg:p-20 min-h-screen">
+    <!-- Admin Login Gate -->
+    <div id="adminLoginGate" class="fixed inset-0 z-[2000] bg-black flex items-center justify-center p-6">
+        <div class="max-w-md w-full glass-card p-10 border-primary/20 space-y-8 text-center animate-scaleIn">
+            <div
+                class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto">
+                <span class="material-symbols-rounded text-4xl">admin_panel_settings</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Admin Login</h2>
+                <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mt-2 text-center">Please Log
+                    In</p>
+            </div>
+            <div class="space-y-4">
+                <input type="password" id="adminPass" placeholder="Enter Password"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white text-center tracking-[1em] outline-none focus:border-primary transition-all">
+                <p id="authError" class="hidden text-primary text-[8px] font-black uppercase">Login Failed: Invalid
+                    Password
+                </p>
+                <button onclick="checkAdminAuth()"
+                    class="w-full py-5 bg-primary rounded-2xl text-[10px] font-black uppercase text-white tracking-widest shadow-glow hover:brightness-110 transition-all">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminContent" class="hidden max-w-7xl mx-auto space-y-12">
+        <header class="flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Admin Dashboard</h1>
+                <p class="text-primary text-[10px] font-black uppercase tracking-[0.3em] mt-2">Manage Academy
+                    Content</p>
+            </div>
+            <div class="flex gap-4">
+                <span id="connectionStatus"
+                    class="px-4 py-2 bg-green-500/10 text-green-500 rounded-lg text-[10px] font-black uppercase border border-green-500/20">Online</span>
+                <a href="index.html"
+                    class="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all">Back
+                    to Portal</a>
+            </div>
+        </header>
+
+        <!-- Stats Overview -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="glass-card p-8 border-white/5 relative overflow-hidden group">
+                <p class="text-[9px] text-gray-500 font-extrabold uppercase tracking-widest">Total Students</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <h2 id="totalStudents" class="text-3xl font-black text-white">0</h2>
+                    <span class="text-[10px] text-primary font-bold mb-1 tracking-widest uppercase">Verified</span>
+                </div>
+            </div>
+            <div class="glass-card p-8 border-white/5 relative overflow-hidden group">
+                <p class="text-[9px] text-gray-500 font-extrabold uppercase tracking-widest">Courses</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <h2 id="totalCourses" class="text-3xl font-black text-white">0</h2>
+                    <span class="text-[10px] text-green-500 font-bold mb-1 tracking-widest uppercase">Live</span>
+                </div>
+            </div>
+            <div class="glass-card p-8 border-white/5 relative overflow-hidden group">
+                <p class="text-[9px] text-gray-500 font-extrabold uppercase tracking-widest">Machines</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <h2 id="totalMachines" class="text-3xl font-black text-white">0</h2>
+                    <span class="text-[10px] text-blue-500 font-bold mb-1 tracking-widest uppercase">Deployed</span>
+                </div>
+            </div>
+            <div class="glass-card p-8 border-white/5 relative overflow-hidden group">
+                <p class="text-[9px] text-gray-500 font-extrabold uppercase tracking-widest">Challenges</p>
+                <div class="flex items-end gap-3 mt-1">
+                    <h2 id="totalChallenges" class="text-3xl font-black text-white">0</h2>
+                    <span class="text-[10px] text-orange-500 font-bold mb-1 tracking-widest uppercase">Active</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-4 overflow-x-auto pb-2">
+            <button onclick="switchTab('courses')" id="tab-btn-courses"
+                class="tab-btn active px-6 py-3 rounded-xl text-xs font-black uppercase transition-all whitespace-nowrap">Courses</button>
+            <button onclick="switchTab('challenges')" id="tab-btn-challenges"
+                class="tab-btn px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white transition-all whitespace-nowrap">Challenges</button>
+            <button onclick="switchTab('machines')" id="tab-btn-machines"
+                class="tab-btn px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white transition-all whitespace-nowrap">Machines</button>
+            <button onclick="switchTab('ctf')" id="tab-btn-ctf"
+                class="tab-btn px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white transition-all whitespace-nowrap">CTF</button>
+            <button onclick="switchTab('members')" id="tab-btn-members"
+                class="tab-btn px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white transition-all whitespace-nowrap">Member
+                Audit</button>
+        </div>
+
+        <!-- Content Area -->
+        <div id="tab-content-area">
+
+            <!-- Courses Tab -->
+            <div id="content-courses" class="tab-content space-y-8">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black text-white uppercase">Course Management</h3>
+                    <button onclick="toggleCourseModal()"
+                        class="px-6 py-3 bg-primary rounded-xl text-[10px] font-black uppercase text-white shadow-glow hover:scale-105 transition-all">
+                        + New Course
+                    </button>
+                </div>
+                <div id="adminCourseList" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dynamic Courses -->
+                </div>
+            </div>
+
+            <!-- Challenges Tab -->
+            <div id="content-challenges" class="tab-content hidden space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-card p-8 border-white/5 space-y-6">
+                        <h3 class="text-xl font-black text-white uppercase">Add Challenge</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="chalTitle" placeholder="TITLE"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <select id="chalDifficulty"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary bg-black">
+                                <option value="EASY">EASY</option>
+                                <option value="MEDIUM">MEDIUM</option>
+                                <option value="HARD">HARD</option>
+                            </select>
+                            <input type="text" id="chalIcon" placeholder="ICON (e.g. terminal)"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <input type="number" id="chalXP" placeholder="XP REWARD" value="250"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <button onclick="saveChallenge()"
+                                class="w-full py-4 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow">Create
+                                Challenge</button>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 border-white/5">
+                        <h3 class="text-xl font-black text-white uppercase mb-6">Active Challenges</h3>
+                        <div id="challengesList" class="space-y-3 max-h-[600px] overflow-y-auto">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Machines Tab -->
+            <div id="content-machines" class="tab-content hidden space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-card p-8 border-white/5 space-y-6">
+                        <h3 class="text-xl font-black text-white uppercase">Add Machine</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="machineName" placeholder="MACHINE NAME"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <select id="machineDifficulty"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary bg-black">
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                                <option value="Insane">Insane</option>
+                            </select>
+                            <select id="machineOS"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary bg-black">
+                                <option value="Linux">Linux</option>
+                                <option value="Windows">Windows</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <input type="number" id="machinePoints" placeholder="POINTS" value="20"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <input type="text" id="machineIcon" placeholder="ICON" value="computer"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <button onclick="saveMachine()"
+                                class="w-full py-4 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow">Add
+                                Machine</button>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 border-white/5">
+                        <h3 class="text-xl font-black text-white uppercase mb-6">Active Machines</h3>
+                        <div id="machinesList" class="space-y-3 max-h-[600px] overflow-y-auto">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTF Tab -->
+            <div id="content-ctf" class="tab-content hidden space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-card p-8 border-white/5 space-y-6">
+                        <h3 class="text-xl font-black text-white uppercase">Add CTF Flag</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="ctfName" placeholder="CHALLENGE NAME"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <select id="ctfCategory"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary bg-black">
+                                <option value="web">WEB</option>
+                                <option value="crypto">CRYPTO</option>
+                                <option value="forensics">FORENSICS</option>
+                                <option value="pwn">PWN</option>
+                                <option value="reverse">REVERSE</option>
+                                <option value="misc">MISC</option>
+                            </select>
+                            <textarea id="ctfDescription" placeholder="DESCRIPTION" rows="3"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary"></textarea>
+                            <input type="number" id="ctfPoints" placeholder="POINTS" value="100"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <select id="ctfDifficulty"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary bg-black">
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                            <!-- Flag Input -->
+                            <input type="text" id="ctfFlag" placeholder="FLAG (e.g. DL{...})"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-primary">
+                            <button onclick="saveCTF()"
+                                class="w-full py-4 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow">Save
+                                Challenge</button>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 border-white/5">
+                        <h3 class="text-xl font-black text-white uppercase mb-6">CTF Challenges</h3>
+                        <div id="ctfList" class="space-y-3 max-h-[600px] overflow-y-auto">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Members Tab -->
+            <div id="content-members" class="tab-content hidden space-y-8">
+                <section class="glass-card overflow-hidden border-white/5">
+                    <div class="p-8 border-b border-white/5 flex justify-between items-center">
+                        <h3 class="text-xl font-black text-white uppercase tracking-tight">Student List</h3>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-rounded absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">person_search</span>
+                            <input type="text" id="agentSearch" onkeyup="filterAgents()" placeholder="FIND STUDENT..."
+                                class="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-[9px] font-black uppercase text-white outline-none focus:border-primary/50 transition-all w-48">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-sans">
+                            <thead>
+                                <tr
+                                    class="text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-white/5 bg-white/[0.01]">
+                                    <th class="p-6">Student ID</th>
+                                    <th class="p-6">Progress</th>
+                                    <th class="p-6">Last Active</th>
+                                    <th class="p-6 text-right">Stats</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberList">
+                                <!-- Members load here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Editor Modal -->
+    <div id="courseModal" class="fixed inset-0 z-[1000] hidden items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-3xl" onclick="toggleCourseModal()"></div>
+        <div
+            class="relative glass-card max-w-2xl w-full p-10 space-y-6 border-white/5 max-h-[90vh] overflow-y-auto animate-scaleIn">
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Course Editor</h3>
+                <button onclick="toggleCourseModal()" class="text-gray-500 hover:text-white transition-colors"><span
+                        class="material-symbols-rounded">close</span></button>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="cID" placeholder="ID (e.g. WHATSAPP-01)"
+                        class="bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs outline-none focus:border-primary uppercase tracking-widest font-mono">
+                    <select id="cLevel"
+                        class="bg-white/5 border border-white/10 rounded-xl p-4 text-white text-[10px] font-black uppercase outline-none focus:border-primary bg-black">
+                        <option value="1">Required Level: 1</option>
+                        <option value="2">Required Level: 2</option>
+                        <option value="3">Required Level: 3</option>
+                        <option value="4">Required Level: 4</option>
+                        <option value="5">Required Level: 5</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="cInstructor" placeholder="INSTRUCTOR"
+                        class="bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs outline-none focus:border-primary">
+                    <input type="text" id="cTitle" placeholder="COURSE TITLE"
+                        class="bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs outline-none focus:border-primary">
+                </div>
+                <textarea id="cDesc" placeholder="COURSE DESCRIPTION"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs outline-none focus:border-primary h-24"></textarea>
+                <input type="text" id="cImg" placeholder="THUMBNAIL IMAGE URL"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs outline-none focus:border-primary">
+
+                <div class="pt-4 border-t border-white/5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-[10px] font-black text-primary uppercase tracking-widest">Modules JSON
+                        </h4>
+                    </div>
+                    <textarea id="cModules"
+                        class="w-full bg-black border border-white/10 rounded-xl p-4 text-green-500 font-mono text-[10px] outline-none h-48 scrollbar-custom">[
+  {
+    "title": "Welcome to Course",
+    "vid": "YOUTUBE_ID",
+    "quiz": { "q": "What is 1+1?", "a": ["2", "3"], "correct": 0 }
+  }
+]</textarea>
+                    <p class="text-[8px] text-gray-600 uppercase font-bold italic">* Use YouTube Video ID only (e.g.
+                        dQw4w9WgXcQ)</p>
+                </div>
+
+                <button onclick="saveCourse()"
+                    class="w-full py-5 bg-primary rounded-2xl text-[10px] font-black uppercase text-white tracking-widest shadow-glow hover:brightness-110 transition-all">Save
+                    Course</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, addDoc, onSnapshot, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+            measurementId: "G-GKNQ27DHDR"
+        };
+
+        let app, db, auth;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            // Auto sign-in for admin (in production, use real auth)
+            signInAnonymously(auth)
+                .then(() => {
+                    console.log("Admin Logged In");
+                    document.getElementById('connectionStatus').innerText = "Connected";
+                })
+                .catch(e => {
+                    console.error("Auth Fail", e);
+                    document.getElementById('connectionStatus').innerText = "Offline";
+                    document.getElementById('connectionStatus').classList.replace('text-green-500', 'text-red-500');
+                });
+        } catch (e) {
+            console.error("Firebase Init Error", e);
+        }
+
+        // Global exports for inline handlers
+        window.firebaseAdmin = { db, collection, getDocs, doc, setDoc, addDoc, onSnapshot, deleteDoc, serverTimestamp };
+    </script>
+
+    <script>
+        // UI Logic
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${tab}`)?.classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-primary', 'text-white', 'shadow-glow');
+                btn.classList.add('bg-white/5', 'text-gray-500');
+            });
+
+            const btn = document.getElementById(`tab-btn-${tab}`);
+            if (btn) {
+                btn.classList.add('active', 'bg-primary', 'text-white', 'shadow-glow');
+                btn.classList.remove('bg-white/5', 'text-gray-500');
+            }
+        }
+
+        // Admin Auth
+        function checkAdminAuth() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === 'demoxhexa') { // Simple gate
+                document.getElementById('adminLoginGate').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                initAdminDashboard();
+            } else {
+                const err = document.getElementById('authError');
+                err.classList.remove('hidden');
+                setTimeout(() => err.classList.add('hidden'), 2000);
+            }
+        }
+
+        // Initialization
+        function initAdminDashboard() {
+            startListeners();
+        }
+
+        function startListeners() {
+            const { db, collection, onSnapshot, doc, getDocs } = window.firebaseAdmin;
+            const errorHandler = (e) => {
+                console.error("Sync Error", e);
+                // alert("Sync Error: " + e.message + "\nCheck Firestore Rules.");
+            };
+
+            // 1. Courses Listener
+            onSnapshot(collection(db, "academy_courses"), (snap) => {
+                const list = document.getElementById('adminCourseList');
+                list.innerHTML = '';
+                document.getElementById('totalCourses').innerText = snap.size;
+                snap.forEach(d => {
+                    const data = d.data();
+                    const card = `
+                        <div class="glass-card p-6 border-white/5 relative overflow-hidden group">
+                           <div class="flex justify-between items-start mb-4">
+                                 <h4 class="text-sm font-black text-white uppercase truncate pr-4">${data.title}</h4>
+                                 <span class="text-[8px] bg-white/10 px-2 py-1 rounded text-gray-400">LVL ${data.levelRequirement}</span>
+                           </div>
+                           <p class="text-[9px] text-gray-500 mb-4">${data.instructor}</p>
+                           <div class="flex gap-2">
+                                 <button onclick="editCourse('${d.id}')" class="flex-1 py-2 bg-white/5 rounded text-[8px] font-black uppercase hover:bg-white/10">Edit</button>
+                                 <button onclick="deleteDocWrapper('academy_courses', '${d.id}')" class="px-3 py-2 bg-red-500/10 text-red-500 rounded hover:bg-red-500 hover:text-white"><span class="material-symbols-rounded text-sm">delete</span></button>
+                           </div>
+                        </div>`;
+                    list.insertAdjacentHTML('beforeend', card);
+                });
+            }, errorHandler);
+
+            // 2. Members Listener
+            onSnapshot(collection(db, "academy_data"), (snap) => {
+                const list = document.getElementById('memberList');
+                list.innerHTML = '';
+                document.getElementById('totalStudents').innerText = snap.size;
+                snap.forEach(d => {
+                    const data = d.data();
+                    const row = `
+                        <tr class="border-b border-white/5 hover:bg-white/[0.01]">
+                             <td class="p-6 text-[10px] font-mono text-white">${d.id}</td>
+                             <td class="p-6 text-[10px] text-gray-500">LVL ${data.level || 1} • ${data.xp || 0} XP</td>
+                             <td class="p-6 text-[9px] text-gray-600 font-mono">${data.lastUpdated ? new Date(data.lastUpdated.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                             <td class="p-6 text-right"><span class="text-primary font-black text-xs">ACTIVE</span></td>
+                        </tr>`;
+                    list.insertAdjacentHTML('beforeend', row);
+                });
+            }, errorHandler);
+
+            // 3. Challenges Listener
+            onSnapshot(collection(db, "academy_challenges"), (snap) => {
+                const list = document.getElementById('challengesList');
+                list.innerHTML = '';
+                document.getElementById('totalChallenges').innerText = snap.size;
+                snap.forEach(d => {
+                    const data = d.data();
+                    list.insertAdjacentHTML('beforeend', `
+                         <div class="glass-card p-4 border-white/5 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-white uppercase">${data.title}</h4>
+                                <p class="text-[9px] text-gray-500">${data.difficulty} | ${data.xp} XP</p>
+                            </div>
+                            <button onclick="deleteDocWrapper('academy_challenges', '${d.id}')" class="text-red-500 hover:text-white"><span class="material-symbols-rounded text-sm">delete</span></button>
+                         </div>
+                    `);
+                });
+            }, errorHandler);
+
+            // 4. Machines Listener
+            onSnapshot(collection(db, "htb_machines"), (snap) => {
+                const list = document.getElementById('machinesList');
+                list.innerHTML = '';
+                document.getElementById('totalMachines').innerText = snap.size;
+                snap.forEach(d => {
+                    const data = d.data();
+                    list.insertAdjacentHTML('beforeend', `
+                         <div class="glass-card p-4 border-white/5 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-white uppercase">${data.name}</h4>
+                                <p class="text-[9px] text-gray-500">${data.os} | ${data.points} PTS</p>
+                            </div>
+                            <button onclick="deleteDocWrapper('htb_machines', '${d.id}')" class="text-red-500 hover:text-white"><span class="material-symbols-rounded text-sm">delete</span></button>
+                         </div>
+                    `);
+                });
+            }, errorHandler);
+
+            // 5. CTF Listener
+            onSnapshot(collection(db, "ctf_challenges"), (snap) => {
+                const list = document.getElementById('ctfList');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    list.insertAdjacentHTML('beforeend', `
+                         <div class="glass-card p-4 border-white/5 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-white uppercase">${data.name}</h4>
+                                <p class="text-[9px] text-gray-500">${data.category} | ${data.points} PTS</p>
+                            </div>
+                            <button onclick="deleteDocWrapper('ctf_challenges', '${d.id}')" class="text-red-500 hover:text-white"><span class="material-symbols-rounded text-sm">delete</span></button>
+                         </div>
+                    `);
+                });
+            }, errorHandler);
+        }
+
+        // Logic Actions
+        window.deleteDocWrapper = async (col, id) => {
+            if (confirm("Are you sure you want to delete this?")) {
+                const { db, doc, deleteDoc } = window.firebaseAdmin;
+                try {
+                    await deleteDoc(doc(db, col, id));
+                } catch (e) {
+                    alert("Delete Failed: " + e.message + "\nCheck Permissions.");
+                }
+            }
+        };
+
+        window.toggleCourseModal = () => document.getElementById('courseModal').classList.toggle('hidden');
+
+        window.saveCourse = async () => {
+            const id = document.getElementById('cID').value;
+            const title = document.getElementById('cTitle').value;
+            const desc = document.getElementById('cDesc').value;
+            const img = document.getElementById('cImg').value;
+            const instructor = document.getElementById('cInstructor').value;
+            const level = parseInt(document.getElementById('cLevel').value);
+            let modules;
+
+            try {
+                modules = JSON.parse(document.getElementById('cModules').value);
+            } catch (e) {
+                return alert("Invalid JSON in modules");
+            }
+
+            if (!id || !title) return alert("Missing required fields");
+
+            const { db, doc, setDoc, serverTimestamp } = window.firebaseAdmin;
+            try {
+                await setDoc(doc(db, "academy_courses", id), {
+                    title, desc, img, instructor,
+                    levelRequirement: level,
+                    modules,
+                    lastUpdated: serverTimestamp()
+                });
+                toggleCourseModal();
+                alert("Course Saved");
+            } catch (e) {
+                alert("Upload Failed: " + e.message + "\nCheck Permissions.");
+            }
+        };
+
+        window.saveChallenge = async () => {
+            try {
+                const title = document.getElementById('chalTitle').value;
+                const diff = document.getElementById('chalDifficulty').value;
+                const icon = document.getElementById('chalIcon').value;
+                const xp = parseInt(document.getElementById('chalXP').value);
+
+                if (!title) return alert("Title required");
+
+                const { db, collection, addDoc } = window.firebaseAdmin;
+                await addDoc(collection(db, "academy_challenges"), {
+                    title, difficulty: diff, icon, xp
+                });
+                alert("Challenge Created");
+                // Clear inputs
+                document.getElementById('chalTitle').value = '';
+                document.getElementById('chalIcon').value = '';
+            } catch (e) {
+                alert("Error creating challenge: " + e.message + "\nCheck Permissions."); // Explicit permission hint
+            }
+        };
+
+        window.saveMachine = async () => {
+            try {
+                const name = document.getElementById('machineName').value;
+                const diff = document.getElementById('machineDifficulty').value;
+                const os = document.getElementById('machineOS').value;
+                const points = parseInt(document.getElementById('machinePoints').value);
+                const icon = document.getElementById('machineIcon').value;
+
+                if (!name) return alert("Name required");
+
+                const { db, collection, addDoc } = window.firebaseAdmin;
+                await addDoc(collection(db, "htb_machines"), {
+                    name, difficulty: diff, os, points, icon,
+                    ip: "10.10.10.X"
+                });
+                alert("Machine Added");
+                document.getElementById('machineName').value = '';
+            } catch (e) {
+                alert("Error deploying machine: " + e.message + "\nCheck Permissions.");
+            }
+        };
+
+        window.saveCTF = async () => {
+            try {
+                const name = document.getElementById('ctfName').value;
+                const cat = document.getElementById('ctfCategory').value;
+                const desc = document.getElementById('ctfDescription').value;
+                const points = parseInt(document.getElementById('ctfPoints').value);
+                const diff = document.getElementById('ctfDifficulty').value;
+                const flag = document.getElementById('ctfFlag').value;
+
+                if (!name) return alert("Name required");
+
+                const { db, collection, addDoc } = window.firebaseAdmin;
+                await addDoc(collection(db, "ctf_challenges"), {
+                    name, category: cat, description: desc, points, difficulty: diff,
+                    flag: flag,
+                    solves: 0
+                });
+                alert("CTF Challenge Saved");
+                document.getElementById('ctfName').value = '';
+                document.getElementById('ctfFlag').value = '';
+                document.getElementById('ctfDescription').value = '';
+            } catch (e) {
+                alert("Error saving CTF: " + e.message + "\nCheck Permissions.");
+            }
+        };
+
+        window.editCourse = async (id) => {
+            try {
+                const { db, doc, getDoc } = window.firebaseAdmin;
+                const d = await getDoc(doc(db, "academy_courses", id));
+                if (!d.exists()) return;
+                const data = d.data();
+
+                document.getElementById('cID').value = id;
+                document.getElementById('cTitle').value = data.title;
+                document.getElementById('cDesc').value = data.desc;
+                document.getElementById('cImg').value = data.img;
+                document.getElementById('cInstructor').value = data.instructor;
+                document.getElementById('cLevel').value = data.levelRequirement;
+                document.getElementById('cModules').value = JSON.stringify(data.modules, null, 2);
+                toggleCourseModal();
+            } catch (e) {
+                alert("Read Error: " + e.message);
+            }
+        };
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // In this system, admins are identified by their entries in the 'admins' collection
+      // or by a specific custom claim if using Firebase Auth properly.
+      // For now, we allow access if the request is authenticated.
+      return request.auth != null;
+    }
+
+    // Member Applications
+    match /applications/{applicationId} {
+      // Anyone can submit an application
+      allow create: if true;
+      // Applicants can read their own if they have the ID (in a real app, we'd use auth)
+      allow read: if true; 
+      // Only admins should ideally update/delete
+      allow update, delete: if true; // Keeping open as per user's "open from everywhere" request, but consolidated
+
+      match /chat/{messageId} {
+        allow read, write: if true;
+      }
+      
+      match /call/{callId} {
+        allow read, write: if true;
+        match /candidates/{candidateId} {
+          allow read, write: if true;
+        }
+      }
+    }
+
+    // Admin Management
+    match /admins/{adminId} {
+      allow read, write: if true;
+    }
+
+    match /admin_logs/{logId} {
+      allow create: if true;
+      allow read: if true;
+    }
+
+    // System Monitoring & Analytics
+    match /visitor_traffic/{trafficId} {
+      allow create: if true;
+      allow read, delete: if true;
+    }
+
+    match /security_alerts/{alertId} {
+      allow create, read, update: if true;
+    }
+
+    match /blocked_ips/{ip} {
+      allow read, write: if true;
+    }
+
+    // System Integration
+    match /sms_sync/{docId} {
+      allow read, write: if true;
+    }
+
+    match /support_appeals/{appealId} {
+      allow create, read, write: if true;
+    }
+
+    match /community_broadcasts/{broadcastId} {
+      allow read: if true;
+      allow create, write: if true;
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Global catch-all (Keep open for now to prevent "insufficient permissions" while debugging)
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

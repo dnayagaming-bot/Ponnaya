@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DL Tool Database | Login</title>
+    <link rel="icon" type="image/png" href="../logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script type="module" src="../protection.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff002b",
+                        "primary-glow": "rgba(255, 0, 43, 0.4)",
+                        "bg-dark": "#050505",
+                        "card-dark": "rgba(20, 20, 20, 0.9)",
+                        "border-white": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 0%, #1a0508 0%, #050505 100%);
+            color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border-radius: 2.5rem;
+        }
+
+        .input-pill {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.2rem;
+            padding: 1rem 1.4rem;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .input-pill:focus {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: #ff002b;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(255, 0, 43, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #ff002b 0%, #8b0017 100%);
+            border-radius: 9999px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(255, 0, 43, 0.2);
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            font-size: 0.8rem;
+        }
+
+        .btn-gradient:hover {
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 15px 30px rgba(255, 0, 43, 0.4);
+        }
+
+        .btn-gradient:active {
+            transform: scale(0.98);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(255, 0, 43, 0.5);
+        }
+
+        /* Particle-like background */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center p-6">
+    <div class="noise"></div>
+
+    <div class="w-full max-w-md animate-fadeIn">
+        <div class="text-center mb-10">
+            <img src="../logo.png" alt="DL Logo"
+                class="h-24 w-24 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(255,0,43,0.4)] rounded-full">
+            <h1 class="text-4xl font-black uppercase tracking-tighter glow-text">DL Tool <span
+                    class="text-primary">Database</span></h1>
+            <p class="text-gray-400 text-sm mt-2 font-medium">Access the secret arsenal of the Death Legion</p>
+        </div>
+
+        <div class="glass-card p-8 md:p-10">
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Member
+                        ID</label>
+                    <input required id="memberId" type="text" placeholder="e.g. DL-X82F1S" class="input-pill" />
+                </div>
+
+                <button type="submit"
+                    class="w-full py-4 btn-gradient text-white flex items-center justify-center gap-2">
+                    <span class="material-symbols-rounded text-lg">login</span>
+                    Authorize Access
+                </button>
+
+                <div class="text-center">
+                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                        Access requires an approved Legion ID.
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <p class="text-center mt-8 text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Section 7 Security
+            Clearance Required</p>
+    </div>
+
+    <!-- Firebase Configuration and Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+            measurementId: "G-GKNQ27DHDR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const loginForm = document.getElementById('loginForm');
+        const memberIdInput = document.getElementById('memberId');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const memberId = memberIdInput.value.trim().toUpperCase();
+
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="material-symbols-rounded text-lg animate-spin">sync</span> Verifying...';
+
+            try {
+                // Check Global Lockdown
+                const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                const lockSnap = await getDoc(doc(db, 'settings', 'global'));
+                if (lockSnap.exists() && lockSnap.data().lockdown && memberId !== 'DEMOXHEXA' && memberId !== 'demoxhexa') {
+                    throw new Error("SYSTEM LOCKDOWN ACTIVE: Access is temporarily suspended by Legion Command.");
+                }
+
+                // Priority Check: Master ID Bypass
+                if (memberId === 'DEMOXHEXA') {
+                    sessionStorage.setItem('dl_auth', JSON.stringify({
+                        memberId: 'demoxhexa',
+                        nickname: 'Director COMMANDER',
+                        email: 'admin@legion.com'
+                    }));
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                // Check Applications Collection
+                const q = query(collection(db, "applications"),
+                    where("id", "==", memberId)
+                );
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+                    if (userData.status !== 'Approved') {
+                        throw new Error("Target account is pending approval or suspended.");
+                    }
+
+                    // Update Device Telemetry
+                    const { updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                    await updateDoc(doc(db, "applications", userDoc.id), {
+                        lastLoginDevice: {
+                            ua: navigator.userAgent,
+                            platform: navigator.platform,
+                            screen: `${screen.width}x${screen.height}`,
+                            ts: new Date()
+                        }
+                    });
+
+                    sessionStorage.setItem('dl_auth', JSON.stringify({
+                        memberId: userData.id,
+                        nickname: userData.nickname,
+                        email: userData.email
+                    }));
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                // Check Admins Collection
+                const adminSnap = await getDocs(query(collection(db, "admins"), where("__name__", "==", memberId.toLowerCase())));
+                if (!adminSnap.empty) {
+                    const adminData = adminSnap.docs[0].data();
+                    sessionStorage.setItem('dl_auth', JSON.stringify({
+                        memberId: memberId.toLowerCase(),
+                        nickname: adminData.name || 'Legion Admin',
+                        email: 'admin@legion.com'
+                    }));
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                throw new Error("Invalid credentials or ID not found.");
+            } catch (error) {
+                alert(error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-rounded text-lg">login</span> Authorize Access';
+            }
+        });
+
+        // Check existing session
+        if (sessionStorage.getItem('dl_auth')) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+
+</html>

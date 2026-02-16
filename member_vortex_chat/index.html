@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Chat | Connected Platform</title>
+    <!-- Standard Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-[#0b141a] text-[#e9edef] selection:bg-[#00a884]/30 selection:text-white">
+
+    <div class="app-layout flex h-screen w-screen overflow-hidden" id="interface">
+
+        <!-- Sidebar (WhatsApp Style) -->
+        <aside class="w-full md:w-[450px] bg-[#111b21] flex flex-col border-r border-[#222d34] z-20">
+            <!-- Header -->
+            <header class="h-[60px] bg-[#202c33] px-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img id="my-profile-img" src="../logo.png"
+                        class="w-10 h-10 rounded-full border border-white/5 cursor-pointer object-cover">
+                    <span class="font-bold text-sm" id="my-display-name">My Profile</span>
+                </div>
+                <div class="flex gap-6 text-[#aebac1] text-lg">
+                    <button id="add-contact-btn" title="Contacts"><i class="fa-solid fa-address-book"></i></button>
+                    <button id="new-group-btn" title="Create Group"><i class="fa-solid fa-users-plus"></i></button>
+                    <button><i class="fa-solid fa-circle-notch"></i></button>
+                    <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </header>
+
+            <!-- Search -->
+            <div class="p-2 bg-[#111b21] border-b border-white/5">
+                <div class="relative bg-[#202c33] rounded-lg">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[#8696a0] text-sm"></i>
+                    <input type="text" id="global-search" placeholder="Search for people or groups"
+                        class="w-full bg-transparent border-none py-2.5 pl-12 pr-4 text-sm text-[#d1d7db] outline-none placeholder:text-[#8696a0]">
+                </div>
+            </div>
+
+            <!-- List Area -->
+            <div id="chat-list-container" class="flex-1 overflow-y-auto custom-scrollbar">
+                <!-- Chats Rendered Here -->
+            </div>
+        </aside>
+
+        <!-- Main Chat Area (Telegram Style Background) -->
+        <main class="hidden md:flex flex-1 flex-col relative bg-[#0b141a] border-l border-white/5"
+            id="main-chat-window">
+
+            <!-- Welcome Screen -->
+            <div id="welcome-screen"
+                class="absolute inset-0 z-10 flex flex-col items-center justify-center p-12 text-center bg-[#0b141a]">
+                <div class="relative mb-8">
+                    <div
+                        class="w-40 h-40 bg-[#202c33] rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden">
+                        <img src="../logo.png" class="w-24 opacity-20">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent animate-shimmer">
+                        </div>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold mb-4">Member Chat</h1>
+                <p class="text-[#8696a0] max-w-sm text-sm">Welcome to the official community portal. Connect with other
+                    members safely and privately.</p>
+                <div class="mt-12 flex items-center gap-2 text-[#8696a0] text-xs font-medium">
+                    <i class="fa-solid fa-lock text-[10px]"></i> End-to-end encrypted
+                </div>
+            </div>
+
+            <!-- Conversation Header -->
+            <div id="convo-header"
+                class="hidden h-[60px] bg-[#202c33] border-b border-white/5 px-4 flex items-center justify-between z-20">
+                <div class="flex items-center gap-4 cursor-pointer">
+                    <!-- Mobile Back -->
+                    <button onclick="goBack()" class="md:hidden text-[#aebac1] hover:text-white mr-2">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </button>
+                    <div class="flex items-center gap-4 cursor-pointer" id="convo-profile-btn">
+                        <img id="active-user-img" src="../logo.png" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <h4 id="active-user-name" class="font-bold text-[15px] flex items-center gap-2">Chat Name
+                            </h4>
+                            <p id="active-user-status" class="text-[11px] text-[#00a884]">online</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-8 text-[#aebac1]">
+                    <i class="fa-solid fa-magnifying-glass cursor-pointer hover:text-white"></i>
+                    <i class="fa-solid fa-ellipsis-vertical cursor-pointer hover:text-white"></i>
+                </div>
+            </div>
+
+            <!-- Messages Flow -->
+            <div id="messages-flow"
+                class="hidden flex-1 overflow-y-auto custom-scrollbar p-10 space-y-4 flex flex-col pb-24">
+                <!-- Messages Injected Here -->
+            </div>
+
+            <!-- Footer / Input -->
+            <footer id="convo-footer"
+                class="hidden absolute bottom-0 left-0 right-0 p-3 bg-[#202c33] flex items-center gap-3 z-30">
+                <div class="flex gap-4 text-[#aebac1] text-xl ml-2">
+                    <i class="fa-regular fa-face-smile cursor-pointer hover:text-white"></i>
+                    <label for="media-input" class="cursor-pointer hover:text-white">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </label>
+                    <input type="file" id="media-input" class="hidden" accept="image/*">
+                </div>
+                <div class="flex-1">
+                    <textarea id="msg-input" placeholder="Type a message..." rows="1"
+                        class="w-full bg-[#2a3942] border-none rounded-xl py-3 px-5 text-[15px] text-[#d1d7db] outline-none resize-none placeholder:text-[#8696a0]"></textarea>
+                </div>
+                <div id="btn-container">
+                    <button id="send-btn" class="text-[#00a884] text-xl px-2 hidden"><i
+                            class="fa-solid fa-paper-plane"></i></button>
+                    <button id="mic-btn" class="text-[#aebac1] text-xl px-2"><i
+                            class="fa-solid fa-microphone"></i></button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Auth Backdrop -->
+    <div id="auth-layer" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b141a]">
+        <div class="w-full max-w-sm p-10 text-center flex flex-col items-center animate-fadeIn">
+            <div class="relative mb-12">
+                <img src="../logo.png" class="w-24 h-24 rounded-full shadow-2xl border-4 border-[#202c33]">
+                <div
+                    class="absolute -bottom-2 -right-2 bg-[#00a884] w-8 h-8 rounded-full flex items-center justify-center border-4 border-[#0b141a]">
+                    <i class="fa-solid fa-lock text-white text-[10px]"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold mb-2">Member Chat</h2>
+            <p class="text-[#8696a0] text-sm mb-12">Login to your account to continue</p>
+
+            <div class="w-full space-y-4">
+                <input type="text" id="member-login-id" placeholder="Enter ID or Name"
+                    class="w-full bg-[#202c33] border border-white/5 rounded-2xl py-5 px-6 text-center text-lg font-medium outline-none placeholder:text-[#8696a0] focus:border-[#00a884]/50 transition-all">
+                <button id="login-confirm-btn"
+                    class="w-full py-5 bg-[#00a884] text-white font-bold rounded-2xl hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-[#00a884]/20">Login</button>
+            </div>
+            <p id="error-msg" class="text-[#ff2e74] text-sm font-medium mt-6 hidden">
+                Account not found or not approved.</p>
+        </div>
+    </div>
+
+    <!-- Profile Info Drawer (WA Style) -->
+    <div id="profile-drawer"
+        class="fixed right-0 top-0 bottom-0 w-full md:w-[400px] bg-[#111b21] z-[60] translate-x-full transition-transform duration-300 border-l border-white/5 shadow-2xl flex flex-col">
+        <header class="h-[100px] bg-[#202c33] flex items-end p-6 gap-6">
+            <button id="close-drawer" class="text-[#aebac1] hover:text-white mb-1"><i
+                    class="fa-solid fa-arrow-right text-xl"></i></button>
+            <h2 class="text-lg font-bold">Contact Info</h2>
+        </header>
+        <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center p-8 text-center bg-[#0b141a]">
+            <img id="drawer-img" src="../logo.png"
+                class="w-48 h-48 rounded-full object-cover shadow-2xl border-4 border-[#202c33] mb-6">
+            <h1 id="drawer-name" class="text-2xl font-bold mb-1">User Name</h1>
+            <p id="drawer-status" class="text-[#00a884] text-sm font-medium mb-8">Verified Member</p>
+
+            <div class="w-full space-y-6 text-left">
+                <div class="bg-[#202c33]/30 p-5 rounded-2xl border border-white/5">
+                    <label class="text-[10px] text-[#8696a0] font-black uppercase tracking-widest block mb-2">Member
+                        ID</label>
+                    <p id="drawer-member-id" class="text-white font-mono font-bold tracking-tight">DL-XXXXXX</p>
+                </div>
+                <div class="bg-[#202c33]/30 p-5 rounded-2xl border border-white/5">
+                    <label class="text-[10px] text-[#8696a0] font-black uppercase tracking-widest block mb-1">Email
+                        Address</label>
+                    <p id="drawer-email" class="text-white text-sm font-medium">member@example.com</p>
+                </div>
+                <button
+                    class="w-full py-4 text-red-500 font-black uppercase text-[10px] tracking-widest hover:bg-red-500/5 rounded-2xl transition-all border border-red-500/10">Block
+                    Member</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Creation Modal -->
+    <div id="group-modal"
+        class="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-6">
+        <div
+            class="bg-[#111b21] w-full max-w-md rounded-3xl border border-white/5 overflow-hidden flex flex-col shadow-2xl">
+            <header class="p-6 bg-[#202c33] flex justify-between items-center">
+                <h3 class="font-bold">New Group</h3>
+                <button onclick="document.getElementById('group-modal').classList.add('hidden')"
+                    class="text-[#aebac1]"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="text-[10px] text-[#8696a0] font-black uppercase tracking-widest block mb-2">Group
+                        Name</label>
+                    <input type="text" id="new-group-name" placeholder="Team Alpha"
+                        class="w-full bg-[#202c33] border-none rounded-xl py-3 px-4 outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] text-[#8696a0] font-black uppercase tracking-widest block mb-2">Select
+                        Members</label>
+                    <div id="group-member-list" class="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                        <!-- Members checkbox list -->
+                    </div>
+                </div>
+                <button id="create-group-confirm"
+                    class="w-full py-4 bg-[#00a884] text-white font-bold rounded-2xl">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Media Fullscreen Overlay -->
+    <div id="media-layer"
+        class="fixed inset-0 z-[100] bg-black/95 hidden items-center justify-center p-10 cursor-zoom-out">
+        <img src="" id="media-zoom-img" class="max-w-full max-h-full rounded-lg shadow-[0_0_100px_rgba(0,0,0,1)]">
+        <div class="absolute top-10 right-10 flex gap-4">
+            <button id="download-zoom-img" class="text-white/50 hover:text-white text-3xl"><i
+                    class="fa-solid fa-download"></i></button>
+            <button class="text-white/50 hover:text-white text-3xl"
+                onclick="document.getElementById('media-layer').classList.add('hidden'); document.getElementById('media-layer').classList.remove('flex');"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

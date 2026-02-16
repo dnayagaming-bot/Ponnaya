@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CTF Challenges | Legion Academy</title>
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,container-queries"></script>
+    <script src="../encryption_vault.js"></script>
+    <script type="module" src="../protection.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, onSnapshot, doc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+            measurementId: "G-GKNQ27DHDR"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        signInAnonymously(auth).catch(e => console.error("Auth Error", e));
+
+        window.firebaseAcademy = { db, collection, query, where, getDocs, onSnapshot, doc, setDoc, updateDoc, serverTimestamp };
+        window.firebaseEnabled = true;
+    </script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff002b",
+                        "bg-dark": "#050505",
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"],
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            background: #050505;
+            color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 0, 43, 0.3);
+            box-shadow: 0 0 30px rgba(255, 0, 43, 0.1);
+        }
+
+        .shadow-glow {
+            box-shadow: 0 0 20px rgba(255, 0, 43, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 0, 43, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff002b;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-10">
+    <div id="notification-area" class="fixed top-6 right-6 z-[9999] flex flex-col gap-4"></div>
+
+    <div class="max-w-7xl mx-auto space-y-10">
+        <!-- Header -->
+        <header class="flex justify-between items-center animate-fadeInDown">
+            <div>
+                <h1 class="text-5xl font-black text-white uppercase tracking-tighter">CTF Challenges</h1>
+                <p class="text-primary text-xs font-black uppercase tracking-widest mt-2">Capture The Flag Competitions
+                </p>
+            </div>
+            <a href="index.html"
+                class="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black text-white uppercase hover:border-primary/30 transition-all">
+                <span class="material-symbols-rounded text-sm align-middle">arrow_back</span> Back to Academy
+            </a>
+        </header>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 animate-fadeInUp">
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Total Challenges</p>
+                <h3 id="totalChallenges" class="text-3xl font-black text-white mt-2">-</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Solved</p>
+                <h3 id="solvedChallenges" class="text-3xl font-black text-green-500 mt-2">-</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Total Points</p>
+                <h3 id="totalPoints" class="text-3xl font-black text-primary mt-2">-</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Rank</p>
+                <h3 id="userRank" class="text-3xl font-black text-yellow-500 mt-2">N/A</h3>
+            </div>
+            <div class="glass-card p-6 border-white/5">
+                <p class="text-gray-500 text-xs font-black uppercase">Streak</p>
+                <h3 id="solveStreak" class="text-3xl font-black text-blue-500 mt-2">0🔥</h3>
+            </div>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="flex gap-4 flex-wrap animate-fadeIn delay-75">
+            <button onclick="filterCategory('all')" id="cat-all"
+                class="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow">All</button>
+            <button onclick="filterCategory('web')" id="cat-web"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Web</button>
+            <button onclick="filterCategory('crypto')" id="cat-crypto"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Crypto</button>
+            <button onclick="filterCategory('forensics')" id="cat-forensics"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Forensics</button>
+            <button onclick="filterCategory('pwn')" id="cat-pwn"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Pwn</button>
+            <button onclick="filterCategory('reverse')" id="cat-reverse"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Reverse</button>
+            <button onclick="filterCategory('misc')" id="cat-misc"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Misc</button>
+        </div>
+
+        <!-- Challenges Grid -->
+        <div id="challengesGrid"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fadeInUp delay-100">
+            <div class="col-span-full py-20 text-center">
+                <div
+                    class="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin">
+                </div>
+                <p class="text-xs text-gray-500 font-black uppercase mt-4">Syncing CTF Database...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenge Modal -->
+    <div id="challengeModal"
+        class="fixed inset-0 z-[6000] hidden items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div class="glass-card max-w-2xl w-full p-10 border-primary/20 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 id="challengeTitle" class="text-3xl font-black text-white uppercase"></h3>
+                    <p id="challengeCategory" class="text-primary text-xs font-black uppercase mt-2"></p>
+                </div>
+                <button onclick="closeChallenge()" class="text-gray-500 hover:text-white">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="glass-card p-6 border-white/5">
+                    <p id="challengeDescription" class="text-gray-400 text-sm leading-relaxed"></p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="glass-card p-4 border-white/5 text-center">
+                        <p class="text-xs text-gray-500 font-black uppercase">Points</p>
+                        <p id="challengePoints" class="text-2xl font-black text-primary mt-1">0</p>
+                    </div>
+                    <div class="glass-card p-4 border-white/5 text-center">
+                        <p class="text-xs text-gray-500 font-black uppercase">Solves</p>
+                        <p id="challengeSolves" class="text-2xl font-black text-white mt-1">0</p>
+                    </div>
+                    <div class="glass-card p-4 border-white/5 text-center">
+                        <p class="text-xs text-gray-500 font-black uppercase">Difficulty</p>
+                        <p id="challengeDifficulty" class="text-2xl font-black text-yellow-500 mt-1">-</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-xs font-black text-gray-500 uppercase">Submit Flag</label>
+                    <input type="text" id="flagSubmit" placeholder="flag{...}"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-white font-mono focus:border-primary outline-none">
+                    <button onclick="submitCTFFlagPage()"
+                        class="w-full py-4 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow hover:brightness-110">
+                        Submit Flag
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Logic -->
+    <script>
+        window.currentCTFId = null;
+
+        // --- Overrides ---
+        // main.js calls 'renderCTF()' when data is synced.
+        // We override it here to use our page-specific UI logic (filtering, stats).
+
+        window.renderCTF = () => {
+            // Initial render with 'all'
+            filterCategory('all');
+            updateStats();
+        };
+
+        window.updateStats = () => {
+            // Calculate stats from main.js globals
+            const solved = userChallenges.filter(id => academyCTF.find(c => c.id === id));
+            document.getElementById('totalChallenges').innerText = academyCTF.length;
+            document.getElementById('solvedChallenges').innerText = solved.length;
+
+            let pts = 0;
+            solved.forEach(id => {
+                const c = academyCTF.find(c => c.id === id);
+                if (c) pts += (c.points || 0);
+            });
+            document.getElementById('totalPoints').innerText = pts;
+        };
+
+        window.filterCategory = (cat) => {
+            document.querySelectorAll('[id^="cat-"]').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'shadow-glow');
+                btn.classList.add('bg-white/5', 'text-gray-500');
+            });
+            document.getElementById(`cat-${cat}`).classList.add('bg-primary', 'text-white', 'shadow-glow');
+            document.getElementById(`cat-${cat}`).classList.remove('bg-white/5', 'text-gray-500');
+
+            const grid = document.getElementById('challengesGrid');
+            const list = cat === 'all' ? academyCTF : academyCTF.filter(c => c.category === cat);
+
+            const categoryIcons = {
+                web: 'language',
+                crypto: 'lock',
+                forensics: 'search',
+                pwn: 'bug_report',
+                reverse: 'settings_backup_restore',
+                misc: 'extension'
+            };
+
+            grid.innerHTML = list.map(c => {
+                const solved = userChallenges.includes(c.id);
+                return `
+                    <div onclick="openChallenge('${c.id}')" class="glass-card overflow-hidden border-white/5 hover:border-primary/30 transition-all cursor-pointer ${solved ? 'border-green-500/30' : ''}">
+                        <div class="h-40 relative bg-gradient-to-br from-primary/10 to-transparent flex items-center justify-center">
+                            <span class="material-symbols-rounded text-7xl text-white/10">${categoryIcons[c.category] || 'flag'}</span>
+                            ${solved ? '<div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-black">SOLVED</div>' : ''}
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <h4 class="text-sm font-black text-white uppercase truncate">${c.name}</h4>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-primary font-black uppercase">${c.category}</span>
+                                <span class="text-xs text-white font-black">${c.points || 100} pts</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.openChallenge = (id) => {
+            const c = academyCTF.find(c => c.id === id);
+            if (!c) return;
+            window.currentCTFId = id;
+
+            document.getElementById('challengeTitle').innerText = c.name;
+            document.getElementById('challengeCategory').innerText = c.category;
+            document.getElementById('challengeDescription').innerText = c.description;
+            document.getElementById('challengePoints').innerText = c.points;
+            document.getElementById('challengeSolves').innerText = c.solves || 0;
+            document.getElementById('challengeDifficulty').innerText = c.difficulty || 'Normal';
+
+            const modal = document.getElementById('challengeModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeChallenge = () => {
+            const modal = document.getElementById('challengeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('flagSubmit').value = '';
+        };
+
+        window.submitCTFFlagPage = () => {
+            const input = document.getElementById('flagSubmit');
+            const c = academyCTF.find(x => x.id === window.currentCTFId);
+
+            if (input.value.trim() === c.flag) {
+                showNotice("CTF CAPTURED", `Flag valid. +${c.points} XP.`, "success");
+                if (!userChallenges.includes(c.id)) {
+                    userChallenges.push(c.id);
+                    saveAcademyData(); // Main.js function
+                    closeChallenge();
+                    // Refresh current view
+                    filterCategory(document.querySelector('[id^="cat-"].bg-primary').id.replace('cat-', ''));
+                    updateStats();
+                }
+            } else {
+                showNotice("INVALID FLAG", "Decryption failed.", "error");
+            }
+        };
+
+    </script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

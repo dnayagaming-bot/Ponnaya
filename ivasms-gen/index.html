@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVASMS | Premium Virtual Numbers for WhatsApp</title>
+    <meta name="description"
+        content="Get 100% working virtual numbers for WhatsApp verification using IVASMS. Reliable, fast, and secure.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-radial"></div>
+    <div class="mesh-gradient"></div>
+
+    <nav>
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span>IVA<span>SMS</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="#"><i class="fas fa-home"></i> Home</a>
+            <a href="#"><i class="fas fa-list"></i> Services</a>
+            <a href="#"><i class="fas fa-book"></i> API</a>
+            <button class="btn-login">Login</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>100% Working <span class="gradient-text">WhatsApp</span> Virtual Numbers</h1>
+                <p>Access the world's most reliable virtual numbers specifically optimized for WhatsApp verification.
+                    Instant SMS delivery powered by IVASMS technology.</p>
+                <div class="badges">
+                    <span class="badge"><i class="fas fa-check-circle"></i> 100% Success Rate</span>
+                    <span class="badge"><i class="fas fa-bolt"></i> Instant OTP</span>
+                    <span class="badge"><i class="fas fa-lock"></i> Secure & Private</span>
+                </div>
+            </div>
+
+            <div class="generator-card glass">
+                <div class="card-header">
+                    <h2><i class="fas fa-sim-card"></i> Number Generator</h2>
+                    <div class="status">
+                        <span class="pulse"></span>
+                        Service Online
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Service</label>
+                    <div class="custom-select" id="serviceSelect">
+                        <div class="select-selected"><i class="fab fa-whatsapp"></i> WhatsApp</div>
+                        <div class="select-items select-hide">
+                            <div data-value="whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</div>
+                            <div data-value="telegram"><i class="fab fa-telegram"></i> Telegram</div>
+                            <div data-value="facebook"><i class="fab fa-facebook"></i> Facebook</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Country</label>
+                    <div class="custom-select" id="countrySelect">
+                        <div class="select-selected"><img src="https://flagcdn.com/w20/us.png" alt=""> United States
+                            (+1)</div>
+                        <div class="select-items select-hide">
+                            <div data-value="us"><img src="https://flagcdn.com/w20/us.png" alt=""> United States (+1)
+                            </div>
+                            <div data-value="gb"><img src="https://flagcdn.com/w20/gb.png" alt=""> United Kingdom (+44)
+                            </div>
+                            <div data-value="in"><img src="https://flagcdn.com/w20/in.png" alt=""> India (+91)</div>
+                            <div data-value="de"><img src="https://flagcdn.com/w20/de.png" alt=""> Germany (+49)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-generate" id="generateBtn">
+                    <i class="fas fa-plus"></i> Generate New Number
+                </button>
+
+                <div class="number-display" id="numberDisplay" style="display: none;">
+                    <div class="display-label">Your Reserved Number:</div>
+                    <div class="number-box">
+                        <span id="generatedNumber">+1 234 567 8901</span>
+                        <button class="btn-copy" onclick="copyNumber()"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="timer">Reserved for: <span id="countdown">19:59</span></div>
+                </div>
+
+                <div class="otp-section" id="otpSection" style="display: none;">
+                    <button class="btn-refresh" id="refreshOtp">
+                        <i class="fas fa-sync-alt"></i> Waiting for SMS...
+                    </button>
+                    <div class="otp-box" id="otpBox" style="display: none;">
+                        <div class="otp-label">Received OTP:</div>
+                        <div class="otp-value" id="otpValue">772 190</div>
+                        <div class="otp-msg">Your WhatsApp code is 772-190</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="live-activity">
+            <h3><i class="fas fa-satellite-dish"></i> Live Feed</h3>
+            <div class="feed-container" id="feedContainer">
+                <!-- Feed items will be populated by JS -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 IVASMS Technologies. Built with precision for the best WhatsApp experience.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

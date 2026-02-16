@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DL Unban Pro | Death Legion</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Fonts: Outfit & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,container-queries"></script>
+    <!-- Site Protection & Encryption -->
+    <script src="../encryption_vault.js"></script>
+    <script type="module" src="../protection.js"></script>
+</head>
+
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="overlay">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p id="loadingText" style="font-family: 'JetBrains Mono'; margin-top: 20px;">INITIALIZING...</p>
+        </div>
+    </div>
+
+    <!-- Login Overlay (Matrix Style) -->
+    <div id="login-screen">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="login-wrapper">
+            <div class="glitch-wrapper">
+                <h1 class="login-title" data-text="DEATH LEGION">DEATH LEGION</h1>
+            </div>
+            <p class="login-sub">WHATSAPP UNBAN WARFARE SUITE v4.0</p>
+
+            <div id="login-form-container">
+                <div class="input-lock-container">
+                    <i class="fas fa-fingerprint lock-icon"></i>
+                    <input type="text" id="dl-id-input" class="login-input" placeholder="ENTER ACCESS ID (DL-XXXX)"
+                        autocomplete="off">
+                </div>
+
+                <button class="btn-login-pulse" onclick="attemptLogin()">
+                    <span class="btn-text">INITIALIZE LINK</span>
+                    <i class="fas fa-bolt"></i>
+                </button>
+
+                <div class="login-footer">
+                    <span onclick="generateNewID()" class="text-link">[ GENERATE NEW IDENTITY ]</span>
+                </div>
+
+                <div class="term-log" id="login-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper -->
+    <div class="app-container" id="main-app">
+
+        <!-- Sidebar -->
+        <aside class="sidebarglass">
+            <div class="brand">
+                <div class="brand-icon"><i class="fab fa-whatsapp"></i></div>
+                <div class="brand-text">
+                    <h2>DL UNBAN</h2>
+                    <span>SUITE v4.5</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-label">MAIN TOOLS</div>
+                <ul>
+                    <li class="active" onclick="switchTab('dashboard')">
+                        <i class="fas fa-home"></i> <span>Dashboard</span>
+                    </li>
+                    <li onclick="switchTab('business-mode')">
+                        <i class="fas fa-briefcase"></i> <span>Business Mode</span> <span class="badge new">NEW</span>
+                    </li>
+                    <li onclick="switchTab('escalation')">
+                        <i class="fas fa-sort-amount-up"></i> <span>Escalation Levels</span>
+                    </li>
+                    <li onclick="switchTab('bulk')">
+                        <i class="fas fa-mail-bulk"></i> <span>Bulk Sender</span>
+                    </li>
+                </ul>
+
+                <div class="nav-label">EXTRA UTILITIES</div>
+                <ul>
+                    <li onclick="switchTab('social-media')">
+                        <i class="fab fa-twitter"></i> <span>Social Media</span>
+                    </li>
+                    <li onclick="switchTab('ai-prompts')">
+                        <i class="fas fa-robot"></i> <span>AI Prompts</span>
+                    </li>
+                    <li onclick="switchTab('web-tools')">
+                        <i class="fas fa-globe"></i> <span>Web Form Helper</span>
+                    </li>
+                    <li onclick="switchTab('profiles')">
+                        <i class="fas fa-users"></i> <span>Profiles</span>
+                    </li>
+                    <li onclick="switchTab('history')">
+                        <i class="fas fa-history"></i> <span>History</span>
+                    </li>
+                    <li onclick="switchTab('settings')">
+                        <i class="fas fa-cog"></i> <span>Settings</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-chip">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=DL" id="user-avatar" alt="User">
+                    <div class="user-info">
+                        <span id="sidebar-display-id">--</span>
+                        <span class="status-online">● ONLINE</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view-panel active">
+                <header class="panel-header">
+                    <div class="header-titling">
+                        <h1>Standard Appeal</h1>
+                        <p>Generate professional unban requests for personal accounts.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-glass" onclick="resetForm()"><i class="fas fa-undo"></i> Reset</button>
+                    </div>
+                </header>
+
+                <div class="grid-2-1">
+                    <!-- Left: Inputs -->
+                    <div class="card-glass">
+                        <h3><i class="fas fa-pen"></i> Appeal Details</h3>
+
+                        <div class="form-row">
+                            <div class="form-group sm">
+                                <label>Country</label>
+                                <select id="countryCode">
+                                    <option value="+94" selected>Sri Lanka (+94)</option>
+                                    <option value="+1">USA/Canada (+1)</option>
+                                    <option value="+44">UK (+44)</option>
+                                    <option value="+91">India (+91)</option>
+                                    <option value="+62">Indonesia (+62)</option>
+                                    <option value="+7">Russia (+7)</option>
+                                    <option value="+20">Egypt (+20)</option>
+                                    <option value="+966">Saudi Arabia (+966)</option>
+                                    <option value="+880">Bangladesh (+880)</option>
+                                    <option value="+92">Pakistan (+92)</option>
+                                </select>
+                            </div>
+                            <div class="form-group lg">
+                                <label>Phone Number</label>
+                                <input type="number" id="phoneNumber" placeholder="71XXXXXXX">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Reason for Ban</label>
+                            <select id="banReason">
+                                <option value="mistake">I don't know (Mistake)</option>
+                                <option value="spam">Flagged for Spam</option>
+                                <option value="otp">Too many verification codes</option>
+                                <option value="scam">Reports from other users</option>
+                                <option value="nudity">Community Guidelines</option>
+                                <option value="unknown">Unknown / Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Advanced Options -->
+                        <div class="advanced-toggles">
+                            <div class="toggle-item">
+                                <input type="checkbox" id="humanizerToggle">
+                                <label for="humanizerToggle">
+                                    <span>Human Tone</span>
+                                    <small>Natural language</small>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <input type="checkbox" id="legalToggle">
+                                <label for="legalToggle">
+                                    <span>Legal References</span>
+                                    <small>GDPR/Consumer Law</small>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <input type="checkbox" id="vipToggle">
+                                <label for="vipToggle">
+                                    <span>Priority Email</span>
+                                    <small>target specialized inboxes</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Language</label>
+                            <select id="languageSelect"></select>
+                        </div>
+
+                        <button class="btn-primary-lg" onclick="generateAppeal()">
+                            <i class="fas fa-paper-plane"></i> GENERATE EMAIL
+                        </button>
+                    </div>
+
+                    <!-- Right: Preview -->
+                    <div class="card-glass preview-card">
+                        <div class="preview-header">
+                            <span><i class="fas fa-eye"></i> EMAIL PREVIEW</span>
+                            <div class="tags">
+                                <span id="tag-lang" class="tag">EN</span>
+                                <span id="tag-type" class="tag">STD</span>
+                            </div>
+                        </div>
+
+                        <div class="email-preview">
+                            <div class="email-meta">
+                                <span><strong>To:</strong> <span id="previewTo">support@whatsapp.com</span></span>
+                                <button class="mini-btn" onclick="rotateEmail()" title="Change Email Address">
+                                    <i class="fas fa-sync"></i>
+                                </button>
+                            </div>
+                            <div class="email-subject">
+                                <strong>Subject:</strong> <span id="previewSubject">...</span>
+                            </div>
+                            <textarea id="previewBody" readonly></textarea>
+                        </div>
+
+                        <div class="action-dock">
+                            <button class="btn-action" onclick="copyToClipboard()"><i class="fas fa-copy"></i>
+                                Copy</button>
+                            <button class="btn-action primary" onclick="openMailClient()"><i
+                                    class="fas fa-external-link-alt"></i> Open Mail</button>
+                            <button class="btn-action" onclick="saveToProfile()"><i class="fas fa-save"></i>
+                                Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Business Mode (New) -->
+            <section id="business-mode" class="view-panel">
+                <header class="panel-header">
+                    <h1>Business Appeal</h1>
+                    <p>For WhatsApp Business API and SMB accounts. Requires business verification details.</p>
+                </header>
+
+                <div class="grid-2">
+                    <div class="card-glass">
+                        <h3>Business Details</h3>
+                        <input type="text" id="bizName" placeholder="Company Name" style="margin-bottom:10px;">
+                        <input type="text" id="bizReg" placeholder="Registration/Tax ID (Optional)"
+                            style="margin-bottom:10px;">
+                        <input type="text" id="bizSite" placeholder="Website URL" style="margin-bottom:10px;">
+                        <button class="btn-primary-lg" onclick="generateBusinessAppeal()">Generate Business
+                            Appeal</button>
+                    </div>
+                    <div class="card-glass">
+                        <h3>Tips</h3>
+                        <ul style="color:#aaa; font-size:0.9rem; padding-left:20px; line-height:1.6;">
+                            <li>Attach your Business Registration Certificate (PDF) when sending.</li>
+                            <li>Mention if you use an official BSP (like Twilio, Vonage).</li>
+                            <li>Use your official business domain email address if possible.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Social Media (New) -->
+            <section id="social-media" class="view-panel">
+                <header class="panel-header">
+                    <h1>Social Media Pressure</h1>
+                    <p>Public tweets to get attention from support teams.</p>
+                </header>
+                <div class="grid-2">
+                    <div class="card-glass">
+                        <h3>Twitter / X Template</h3>
+                        <textarea id="tweetBody" class="code-area"
+                            readonly>@WhatsApp @WhatsAppSupport My business number [NUMBER] was banned by mistake! I have hundreds of clients waiting. Please help immediately! Case: [ID]</textarea>
+                        <div class="btn-group">
+                            <button class="btn-glass" onclick="generateTweet()">Generate New Tweet</button>
+                            <button class="btn-glass primary"
+                                onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.getElementById('tweetBody').value))">Post
+                                on X</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Prompts (New) -->
+            <section id="ai-prompts" class="view-panel">
+                <header class="panel-header">
+                    <h1>AI Prompt Generator</h1>
+                    <p>Generate a complex prompt to paste into ChatGPT/Claude for a 100% unique letter.</p>
+                </header>
+                <div class="card-glass">
+                    <textarea id="aiPromptOutput" class="code-area" style="height:150px;"
+                        readonly>Act as a professional lawyer specializing in digital rights. Write a formal demand letter to WhatsApp LLC regarding the suspension of number [NUMBER]. Cite lack of prior warning and request immediate restoration. Tone: Professional and Urgent.</textarea>
+                    <button class="btn-primary-lg" onclick="copyAIPrompt()" style="margin-top:10px;">Copy
+                        Prompt</button>
+                </div>
+            </section>
+
+            <!-- Escalation Mode -->
+            <section id="escalation" class="view-panel">
+                <header class="panel-header">
+                    <h1>Escalation Levels</h1>
+                    <p>Use for persistent bans. Increases intensity of language.</p>
+                </header>
+
+                <div class="escalation-container">
+                    <div class="level-card level-1" onclick="selectLevel(1)">
+                        <div class="lvl-icon">1</div>
+                        <h3>Polite Ask</h3>
+                        <p>Standard request for review.</p>
+                    </div>
+                    <div class="level-card level-2" onclick="selectLevel(2)">
+                        <div class="lvl-icon">2</div>
+                        <h3>Firm Request</h3>
+                        <p>Mentions business loss.</p>
+                    </div>
+                    <div class="level-card level-3" onclick="selectLevel(3)">
+                        <div class="lvl-icon">3</div>
+                        <h3>Legal Notice</h3>
+                        <p>Cites data regulations.</p>
+                    </div>
+                </div>
+
+                <div id="escalation-preview" style="display:none; margin-top:20px;">
+                    <button class="btn-primary-lg" onclick="generateEscalatedAppeal()">GENERATE LEVEL <span
+                            id="selected-lvl-disp">1</span> APPEAL</button>
+                </div>
+            </section>
+
+            <!-- Bulk Sender View -->
+            <section id="bulk" class="view-panel">
+                <header class="panel-header">
+                    <h1>Bulk Email Sender</h1>
+                    <p>Generate 50+ unique variations.</p>
+                    <button class="btn-danger-glow" id="rapidFireBtn" onclick="startRapidFire()" disabled>
+                        <i class="fas fa-rocket"></i> START RAPID SENDER
+                    </button>
+                </header>
+
+                <div class="bulk-toolbar">
+                    <button class="btn-glass" onclick="generateBulkAppeals()"><i class="fas fa-sync"></i> Generate 50
+                        Emails</button>
+                    <button class="btn-glass" onclick="downloadBulk()"><i class="fas fa-file-download"></i> Save as
+                        File</button>
+                </div>
+
+                <div id="bulkList" class="bulk-grid custom-scrollbar">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No emails generated yet.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Web & Feedback Tools -->
+            <section id="web-tools" class="view-panel">
+                <header class="panel-header">
+                    <h1>Web Form Helper</h1>
+                </header>
+                <div class="grid-2">
+                    <div class="card-glass">
+                        <h3><i class="fab fa-chrome"></i> Official Contact Form</h3>
+                        <textarea id="webFormMessage" class="code-area"
+                            placeholder="Message will appear here..."></textarea>
+                        <div class="btn-group">
+                            <button class="btn-glass" onclick="copyWebFormMsg()">Copy Text</button>
+                            <button class="btn-glass primary"
+                                onclick="window.open('https://www.whatsapp.com/contact', '_blank')">Open
+                                Website</button>
+                        </div>
+                    </div>
+                    <div class="card-glass">
+                        <h3><i class="fas fa-star"></i> Feedback Generator</h3>
+                        <p>Send positive feedback to support.</p>
+                        <button class="btn-glass full" onclick="generateFeedback()">Generate 10 Feedback Emails</button>
+                        <div id="feedbackList" class="mini-list custom-scrollbar"></div>
+                    </div>
+                </div>
+            </section>
+            <script>
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+                    authDomain: "demoxhexa.firebaseapp.com",
+                    projectId: "demoxhexa",
+                    storageBucket: "demoxhexa.firebasestorage.app",
+                    messagingSenderId: "1003743776194",
+                    appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+                    measurementId: "G-GKNQ27DHDR"
+                };
+                window.addEventListener('DOMContentLoaded', () => {
+                    if (typeof firebase !== 'undefined') {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                });
+            </script>
+            <!-- Profile Manager -->
+            <section id="profiles" class="view-panel">
+                <header class="panel-header">
+                    <h1>Saved Profiles</h1>
+                </header>
+                <div class="grid-2">
+                    <div class="card-glass">
+                        <h3>Save New Profile</h3>
+                        <input type="text" id="prof-name" placeholder="Profile Name (e.g. My Personal)">
+                        <input type="text" id="prof-num" placeholder="Number (with country code)">
+                        <button class="btn-primary-lg" onclick="addProfile()">Save Profile</button>
+                    </div>
+                    <div class="card-glass">
+                        <h3>Your Profiles</h3>
+                        <div id="profile-list" class="mini-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History -->
+            <section id="history" class="view-panel">
+                <header class="panel-header">
+                    <h1>History Log</h1>
+                </header>
+                <div class="card-glass full-height">
+                    <div class="table-container custom-scrollbar">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Number</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Settings -->
+            <section id="settings" class="view-panel">
+                <header class="panel-header">
+                    <h1>System Configuration</h1>
+                </header>
+
+                <div class="grid-2">
+                    <div class="card-glass">
+                        <h3><i class="fas fa-palette"></i> UI Theme</h3>
+                        <div class="theme-switcher">
+                            <button class="theme-btn red active" onclick="setTheme('red')"></button>
+                            <button class="theme-btn green" onclick="setTheme('green')"></button>
+                            <button class="theme-btn blue" onclick="setTheme('blue')"></button>
+                        </div>
+                    </div>
+
+                    <div class="card-glass">
+                        <h3><i class="fas fa-link"></i> Cloud Sync</h3>
+                        <div class="form-group">
+                            <label>DL Identity ID</label>
+                            <input type="text" id="settings-dl-id" readonly>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-glass" onclick="autofillDLKeys()">Load Public Keys</button>
+                            <button class="btn-glass primary" onclick="saveSettings()">Connect</button>
+                        </div>
+                        <div id="settings-hiddens" style="display:none;">
+                            <input id="supabaseUrl"><input id="supabaseKey">
+                            <input id="firebaseKey"><input id="firebaseId">
+                        </div>
+                        <p id="connectionStatus" class="status-text">Disconnected</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

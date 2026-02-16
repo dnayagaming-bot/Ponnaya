@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DL SMS CLIENT | My Workspace</title>
+    <link rel="icon" type="image/png" href="../logo.png">
+
+    <!-- Design Assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --p: #ff002b;
+            --bg: #050505;
+            --c: #121212;
+            --accent: rgba(255, 0, 43, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg: #f3f4f6;
+            --c: #ffffff;
+            --text: #111;
+        }
+
+        [data-theme="blue"] {
+            --p: #3b82f6;
+            --accent: rgba(59, 130, 246, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text, #f3f4f6);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .glass {
+            background: var(--c);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        [data-theme="light"] .glass {
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-tab.active {
+            background: var(--p);
+            color: white;
+            box-shadow: 0 10px 20px rgba(255, 0, 43, 0.2);
+        }
+
+        .num-card.active {
+            border-color: var(--p);
+            background: var(--accent);
+        }
+
+        .num-card.starred {
+            border-left: 4px solid #fbbf24;
+        }
+
+        .blur-mode {
+            filter: blur(10px);
+            transition: filter 0.3s ease;
+        }
+
+        .blur-mode:hover {
+            filter: blur(0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .side-panel {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .side-panel.hidden {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+
+<body class="flex flex-col p-4 md:p-6 lg:p-10" data-theme="dark">
+
+    <!-- Header Section -->
+    <header class="max-w-[1700px] w-full mx-auto flex flex-col xl:flex-row justify-between items-center gap-8 mb-10">
+        <div class="flex items-center gap-6 group cursor-pointer" onclick="window.location.reload()">
+            <div class="relative">
+                <div
+                    class="absolute inset-0 bg-red-600 rounded-2xl blur-3xl opacity-10 group-hover:opacity-30 transition-all">
+                </div>
+                <img src="../logo.png"
+                    class="relative w-16 h-16 rounded-2xl border-2 border-white/5 object-cover shadow-2xl transition-transform hover:scale-105">
+            </div>
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter uppercase italic">DL <span
+                        class="text-red-600">SMS</span> CLIENT</h1>
+                <div class="flex items-center gap-2.5 mt-1">
+                    <div id="status-dot" class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <p id="status-text"
+                        class="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none">Cloud
+                        Connected</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex bg-white/5 p-2 rounded-3xl border border-white/5 backdrop-blur-xl shrink-0 overflow-x-auto">
+            <button onclick="setTab('inbox')" id="t-inbox"
+                class="btn-tab active px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase transition-all whitespace-nowrap">My
+                Inbox</button>
+            <button onclick="setTab('history')" id="t-history"
+                class="btn-tab px-8 py-3.5 rounded-2xl text-[10px] font-black text-gray-500 uppercase transition-all whitespace-nowrap">Cloud
+                History</button>
+            <button onclick="setTab('stats')" id="t-stats"
+                class="btn-tab px-8 py-3.5 rounded-2xl text-[10px] font-black text-gray-500 uppercase transition-all whitespace-nowrap">Analytics</button>
+            <button onclick="setTab('settings')" id="t-settings"
+                class="btn-tab px-8 py-3.5 rounded-2xl text-[10px] font-black text-gray-500 uppercase transition-all whitespace-nowrap">Settings</button>
+        </nav>
+
+        <div class="flex items-center gap-6">
+            <div class="hidden 2xl:flex flex-col items-end">
+                <p id="top-user" class="text-sm font-black uppercase text-white">Operator</p>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[9px] font-bold text-gray-500 uppercase">Daily Limit:</span>
+                    <span id="limit-top" class="text-[9px] font-black text-red-500">0 / 5</span>
+                </div>
+            </div>
+            <div class="h-10 w-px bg-white/10 hidden 2xl:block"></div>
+            <button onclick="togglePrivacy()" id="btn-privacy" title="Privacy Shield"
+                class="p-3.5 bg-white/5 rounded-2xl text-gray-500 border border-white/5 hover:text-white transition-all">
+                <span class="material-symbols-rounded text-xl">visibility_off</span>
+            </button>
+            <button onclick="logout()"
+                class="p-3.5 bg-red-600/10 rounded-2xl text-red-600 border border-red-600/20 hover:bg-red-600 hover:text-white transition-all shadow-2xl">
+                <span class="material-symbols-rounded text-xl">power_settings_new</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Workspace Layout -->
+    <main class="max-w-[1700px] w-full mx-auto flex-1 grid grid-cols-12 gap-10 overflow-hidden">
+
+        <!-- Sidebar: Phone Nodes -->
+        <aside class="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-6 overflow-hidden">
+            <div class="glass p-8 flex flex-col h-full overflow-hidden">
+                <div class="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+                    <div class="flex gap-4">
+                        <button onclick="setSidebarTab('sessions')" id="sb-t-sessions"
+                            class="text-xs font-black uppercase text-white tracking-widest border-b-2 border-primary pb-1">Sessions</button>
+                        <button onclick="setSidebarTab('vault')" id="sb-t-vault"
+                            class="text-xs font-black uppercase text-gray-500 tracking-widest pb-1">The Vault</button>
+                    </div>
+                </div>
+
+                <div class="relative mb-6">
+                    <span
+                        class="material-symbols-rounded absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-600">search</span>
+                    <input type="text" id="search-num" placeholder="Search numbers..."
+                        class="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-xs font-medium focus:ring-1 focus:ring-red-600 focus:outline-none transition-all">
+                </div>
+
+                <div id="number-list" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                    <div class="py-24 text-center opacity-30 italic text-xs tracking-widest">Loading nodes...</div>
+                </div>
+
+                <div id="vault-sidebar-list" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar hidden">
+                    <!-- Add Node Form -->
+                    <div class="p-6 bg-white/[0.03] rounded-3xl border border-white/5 mb-6 space-y-4">
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest">Authorize New Node</p>
+                        <div class="space-y-3">
+                            <input id="new-vault-num" type="text" placeholder="Phone Number (+...)"
+                                class="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-[10px] outline-none focus:border-primary">
+                            <input id="new-vault-name" type="text" placeholder="Node Title (e.g. Algeria 1)"
+                                class="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-[10px] outline-none focus:border-primary">
+                            <select id="new-vault-srv"
+                                class="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-[10px] outline-none focus:border-primary appearance-none">
+                                <option value="General">General Service</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Telegram">Telegram</option>
+                                <option value="Google">Google</option>
+                            </select>
+                            <button onclick="quickAddVault()"
+                                class="w-full py-3 bg-primary text-white text-[10px] font-black uppercase rounded-xl hover:scale-105 transition-all">Add
+                                to Vault</button>
+                        </div>
+                    </div>
+                    <div id="vault-items-container" class="space-y-3">
+                        <div class="py-24 text-center opacity-30 italic text-xs tracking-widest">Loading vault...</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-white/5">
+                    <div class="p-6 bg-white/[0.02] rounded-3xl border border-white/5 space-y-4">
+                        <div
+                            class="flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                            <span>Usage Limit</span>
+                            <span id="limit-percent">0%</span>
+                        </div>
+                        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div id="limit-fill"
+                                class="h-full bg-red-600 shadow-[0_0_15px_#ff0000] transition-all duration-1000"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <section class="col-span-12 lg:col-span-8 xl:col-span-9 h-full overflow-hidden relative">
+
+            <!-- View: INBOX -->
+            <div id="v-inbox" class="glass h-full flex flex-col p-10 animate-in">
+                <div
+                    class="flex flex-col xl:flex-row xl:items-center justify-between gap-8 mb-10 pb-8 border-b border-white/5">
+                    <div class="flex items-center gap-6">
+                        <div class="w-14 h-14 bg-red-600/10 rounded-2xl flex items-center justify-center border border-red-600/20 shadow-inner group cursor-pointer"
+                            onclick="openNodeDetails()">
+                            <span
+                                class="material-symbols-rounded text-red-600 text-3xl transition-transform group-hover:scale-110"
+                                id="v-icon">sms</span>
+                        </div>
+                        <div class="cursor-pointer" onclick="openNodeDetails()">
+                            <h2 class="text-3xl font-black tracking-tighter" id="active-title">Select a Node</h2>
+                            <p class="text-[11px] text-gray-500 font-bold uppercase tracking-[0.4em] mt-1 italic"
+                                id="active-sub">Real-time Signal Interception</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="flex bg-black/40 p-2 rounded-2xl border border-white/5 shadow-inner">
+                            <button onclick="setFilter('all')" id="f-all"
+                                class="px-8 py-3 text-[11px] font-black uppercase rounded-xl transition-all active bg-red-600 text-white">Full
+                                Stream</button>
+                            <button onclick="setFilter('codes')" id="f-codes"
+                                class="px-8 py-3 text-[11px] font-black uppercase rounded-xl text-gray-500 hover:text-white">Codes
+                                Only</button>
+                        </div>
+                        <div class="h-10 w-px bg-white/10 mx-2"></div>
+                        <button onclick="toggleAudio()" id="btn-audio" title="Siren Settings"
+                            class="p-3.5 bg-white/5 rounded-2xl text-gray-500 border border-white/5 hover:text-white transition-all">
+                            <span class="material-symbols-rounded">volume_up</span>
+                        </button>
+                        <button onclick="toggleAuto()" id="btn-auto" title="Bridge Packet"
+                            class="p-3.5 bg-white/5 rounded-2xl text-gray-500 border border-white/5 hover:text-white transition-all">
+                            <span class="material-symbols-rounded">content_copy</span>
+                        </button>
+                        <div class="h-10 w-px bg-white/10 mx-2"></div>
+                        <div class="relative">
+                            <div id="capture-timer-ring"
+                                class="absolute -inset-2 bg-primary/20 rounded-2xl blur hidden animate-pulse"></div>
+                            <button onclick="startCaptureRequest()" id="btn-capture-req"
+                                class="relative px-8 py-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                                <span class="material-symbols-rounded text-sm">bolt</span> Request Code <span
+                                    id="capture-timer-display" class="hidden opacity-60 ml-2">--:--</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative mb-6">
+                    <span
+                        class="material-symbols-rounded absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">search</span>
+                    <input type="text" id="msg-search" placeholder="Search intercepted packets..."
+                        class="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-xs focus:outline-none focus:border-red-600 transition-all">
+                </div>
+
+                <div id="message-list" class="flex-1 overflow-y-auto space-y-5 pr-4 custom-scrollbar">
+                    <div class="h-full flex flex-col items-center justify-center opacity-10 py-40">
+                        <img src="../logo.png" class="w-40 h-40 mb-8 grayscale invert brightness-0 opacity-20">
+                        <p class="text-xs font-black uppercase tracking-[0.5em]">No Signals Captured</p>
+                    </div>
+                </div>
+
+                <div
+                    class="mt-8 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-gray-600 uppercase tracking-widest">
+                    <div class="flex items-center gap-6">
+                        <span id="msg-stat">0 Packets Intercepted</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-green-500">Linked</span>
+                        </div>
+                    </div>
+                    <p id="sync-timer">Last Sync: Neutral</p>
+                </div>
+            </div>
+
+            <!-- View: CLOUD HISTORY -->
+            <div id="v-history" class="glass h-full p-10 hidden flex flex-col animate-in">
+                <div class="flex justify-between items-center mb-10 pb-8 border-b border-white/5">
+                    <div>
+                        <h2 class="text-4xl font-black tracking-tighter italic uppercase">Cloud <span
+                                class="text-red-600">Archive</span></h2>
+                        <p class="text-[11px] font-black text-gray-500 uppercase tracking-widest mt-2">Permanent
+                            database of all intercepted signals</p>
+                    </div>
+                    <button onclick="fetchHistory()"
+                        class="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase hover:bg-white/10 transition-all flex items-center gap-3">
+                        <span class="material-symbols-rounded text-sm">refresh</span> Refresh Vault
+                    </button>
+                </div>
+
+                <div class="relative mb-8">
+                    <span
+                        class="material-symbols-rounded absolute left-6 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+                    <input type="text" id="hist-search" oninput="renderHistory()"
+                        placeholder="Global Search History (Number, Code, or Message content)..."
+                        class="w-full bg-black/40 border border-white/10 rounded-3xl py-6 pl-16 pr-8 text-sm focus:border-red-600 outline-none transition-all placeholder:text-gray-700">
+                </div>
+
+                <div class="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-4" id="history-feed">
+                    <div
+                        class="text-center py-40 opacity-20 animate-pulse uppercase font-black text-xs tracking-widest italic">
+                        Querying Supabase vault...</div>
+                </div>
+            </div>
+
+            <!-- View: ANALYTICS -->
+            <div id="v-stats" class="glass h-full p-12 hidden overflow-y-auto animate-in">
+                ...
+            </div>
+
+            </div>
+
+            <!-- View: SETTINGS -->
+            <div id="v-settings" class="glass h-full p-12 hidden overflow-y-auto animate-in">
+                <h2 class="text-4xl font-black mb-12 tracking-tighter italic uppercase">Command <span
+                        class="text-red-600">Config</span></h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <section class="space-y-10">
+                        <div>
+                            <h3 class="text-[11px] font-black text-gray-500 uppercase mb-6 tracking-widest">Interface
+                                Skin</h3>
+                            <div class="flex gap-6">
+                                <button onclick="setTheme('dark')" id="btn-dark"
+                                    class="w-16 h-16 bg-black rounded-3xl border border-white/10 transition-all hover:scale-110 ring-4 ring-offset-4 ring-offset-black ring-red-600"></button>
+                                <button onclick="setTheme('blue')" id="btn-blue"
+                                    class="w-16 h-16 bg-blue-600 rounded-3xl border border-white/10 transition-all hover:scale-110"></button>
+                                <button onclick="setTheme('light')" id="btn-light"
+                                    class="w-16 h-16 bg-white rounded-3xl border border-black/10 transition-all hover:scale-110"></button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <h3 class="text-[11px] font-black text-gray-500 uppercase mb-4 tracking-widest">Automation
+                                Modules</h3>
+                            <label
+                                class="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
+                                <div>
+                                    <p class="text-sm font-black">Audio Intercept Warning</p>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase mt-1">Play beep on new packet
+                                    </p>
+                                </div>
+                                <input id="check-sound" type="checkbox" checked onchange="toggleAudio()"
+                                    class="w-12 h-6 bg-white/10 appearance-none rounded-full checked:bg-red-600 relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full checked:after:translate-x-6 transition-all duration-300">
+                            </label>
+                            <label
+                                class="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
+                                <div>
+                                    <p class="text-sm font-black">Bridge Mode (Auto Copy)</p>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase mt-1">Transfer OTPs directly
+                                        to bridge</p>
+                                </div>
+                                <input id="check-copy" type="checkbox" onchange="toggleAuto()"
+                                    class="w-12 h-6 bg-white/10 appearance-none rounded-full checked:bg-red-600 relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full checked:after:translate-x-6 transition-all duration-300">
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="space-y-10">
+                        <div>
+                            <h3 class="text-[11px] font-black text-gray-500 uppercase mb-6 tracking-widest">Registry
+                                Controls</h3>
+                            <button onclick="exportData()"
+                                class="w-full py-5 bg-white/5 border border-white/5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Download
+                                Local Registry</button>
+                            <button onclick="wipeData()"
+                                class="w-full mt-4 py-5 bg-red-600/10 text-red-600 border border-red-600/20 rounded-[2rem] text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-2xl">Reset
+                                Personal Cloud Data</button>
+                        </div>
+
+                        <div class="glass p-8 bg-white/[0.02] border border-white/5 flex items-center gap-6 shadow-2xl">
+                            <img id="u-ava" src=""
+                                class="w-20 h-20 rounded-[2rem] p-1 bg-white/5 border border-white/10 object-cover">
+                            <div>
+                                <p class="text-xl font-bold" id="un-display">Operator</p>
+                                <p class="text-[10px] text-red-600 font-black uppercase tracking-widest mt-1">Elite
+                                    Legion Access</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Side Panel: Node Details -->
+    <div id="node-panel"
+        class="side-panel fixed top-0 right-0 h-full w-full md:w-[500px] glass z-[2000] p-12 flex flex-col shadow-[-50px_0_100px_rgba(0,0,0,0.5)] border-l border-white/5 hidden">
+        <div class="flex justify-between items-center mb-16">
+            <h3 class="text-2xl font-black tracking-tighter uppercase italic">Node <span
+                    class="text-red-600">Intel</span></h3>
+            <button onclick="closeNodeDetails()"
+                class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-red-600 transition-all"><span
+                    class="material-symbols-rounded">close</span></button>
+        </div>
+
+        <div class="space-y-12 flex-1">
+            <div class="text-center space-y-4">
+                <div
+                    class="w-32 h-32 bg-primary/10 rounded-[3rem] border border-primary/20 mx-auto flex items-center justify-center">
+                    <span class="material-symbols-rounded text-6xl text-primary" id="det-icon">satellite_alt</span>
+                </div>
+                <div>
+                    <h4 id="det-num" class="text-3xl font-black italic">--</h4>
+                    <p id="det-type" class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mt-2">--</p>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <div>
+                    <label class="text-[10px] font-black text-gray-500 uppercase mb-4 block tracking-widest">Node
+                        Tags</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="toggleStar()" id="det-star"
+                            class="px-6 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase transition-all flex items-center gap-2 bg-white/5">
+                            <span class="material-symbols-rounded text-base">star</span> Starred
+                        </button>
+                        <span
+                            class="px-6 py-3 rounded-2xl border border-green-500/20 text-green-500 bg-green-500/5 text-[10px] font-black uppercase tracking-widest">Active
+                            Link</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-gray-500 uppercase block tracking-widest">Personal
+                        Notes</label>
+                    <textarea id="det-notes" placeholder="Enter information about this node..."
+                        class="w-full h-40 bg-black/40 border border-white/10 rounded-3xl p-6 text-sm focus:border-red-600 outline-none transition-all resize-none"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="saveNodeIntel()"
+            class="w-full py-5 bg-primary text-white font-black uppercase text-[11px] tracking-[0.3em] rounded-[2rem] shadow-2xl hover:scale-105 active:scale-95 transition-all">Update
+            Node Intel</button>
+    </div>
+
+    <!-- UI Overlay Components -->
+    <div id="toast"
+        class="fixed bottom-12 right-12 px-8 py-5 bg-white text-black rounded-[2rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl opacity-0 translate-y-20 transition-all duration-500 z-[3000] border-4 border-black/5 flex items-center gap-4">
+        <span id="toast-icon" class="material-symbols-rounded">check_circle</span>
+        <span id="toast-msg">ACTION SUCCESSFUL</span>
+    </div>
+
+    <audio id="sfx-beep" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <audio id="sfx-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+
+    <!-- Logic Hub -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        // Infrastructure Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b"
+        };
+        const sbUrl = 'https://kmodgzklfxpfavexhdiv.supabase.co';
+        const sbKey = 'sb_publishable_rIlpr9-2k_QipshWx0wchw_0uQHsWcy';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const supabase = createClient(sbUrl, sbKey);
+
+        // Core State
+        let cloudData = { nums: [], msgs: [] };
+        let historyData = [];
+        let nodePreferences = JSON.parse(localStorage.getItem('dl_node_prefs') || '{}');
+        let activeNum = localStorage.getItem('dl_last_num');
+        let currentFilter = 'all';
+        let isVolume = true;
+        let isAutoCopy = false;
+        let isBlurActive = false;
+        let lastMsgId = null;
+        let sidebarTab = 'sessions';
+        let captureTimer = null;
+        let captureTimeLeft = 0;
+        let activeRequestNumber = null;
+        let vaultData = [];
+
+        // AUTH CHECK
+        const auth = JSON.parse(sessionStorage.getItem('dl_sms_auth'));
+        if (!auth) window.location.href = 'index.html';
+        document.getElementById('top-user').innerText = auth.nickname;
+        document.getElementById('un-display').innerText = auth.nickname;
+        document.getElementById('u-ava').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${auth.nickname}`;
+
+        // REAL-TIME SYNC (FIREBASE)
+        onSnapshot(doc(db, "sms_sync", "latest"), (snap) => {
+            if (snap.exists()) {
+                cloudData = snap.data();
+                processUsage(cloudData.nums);
+
+                if (cloudData.msgs?.length > 0) {
+                    const latest = cloudData.msgs[0];
+                    if (lastMsgId && lastMsgId !== latest.id) {
+                        // Check if this latest message is for our active timer number
+                        if (activeRequestNumber && latest.num === activeRequestNumber && latest.code !== 'N/A') {
+                            handleCaptureSuccess(latest.code);
+                        }
+
+                        if (isVolume) document.getElementById('sfx-beep').play();
+                        if (isAutoCopy && latest.code !== 'N/A') {
+                            navigator.clipboard.writeText(latest.code);
+                            showToast('AUTO-CAPTURED: ' + latest.code);
+                        }
+                    }
+                    lastMsgId = latest.id;
+                }
+
+                renderMain();
+                renderStats();
+                document.getElementById('sync-timer').innerText = `Last Capture: ${new Date().toLocaleTimeString()}`;
+            }
+        });
+
+        // Load Vault Data
+        async function syncVault() {
+            try {
+                const { data, error } = await supabase.from('dl_number_sets').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                vaultData = data || [];
+                renderVaultSidebar();
+            } catch (e) { console.error("Vault Sync Fail", e); }
+        }
+        syncVault();
+
+        window.setSidebarTab = (tab) => {
+            sidebarTab = tab;
+            document.getElementById('sb-t-sessions').className = `text-xs font-black uppercase tracking-widest pb-1 ${tab === 'sessions' ? 'text-white border-b-2 border-primary' : 'text-gray-500'}`;
+            document.getElementById('sb-t-vault').className = `text-xs font-black uppercase tracking-widest pb-1 ${tab === 'vault' ? 'text-white border-b-2 border-primary' : 'text-gray-500'}`;
+
+            document.getElementById('number-list').classList.toggle('hidden', tab !== 'sessions');
+            document.getElementById('vault-sidebar-list').classList.toggle('hidden', tab !== 'vault');
+
+            if (tab === 'vault') syncVault();
+        };
+
+
+
+        window.quickAddVault = async () => {
+            const num = document.getElementById('new-vault-num').value.trim();
+            const title = document.getElementById('new-vault-name').value.trim();
+            const srv = document.getElementById('new-vault-srv').value;
+
+            if (!num || !title) return showToast("ENTER ALL FIELDS");
+
+            try {
+                const { error } = await supabase.from('dl_number_sets').insert([{
+                    phone_number: num,
+                    set_name: title,
+                    service_tag: srv
+                }]);
+                if (error) throw error;
+                showToast("NODE ADDED TO VAULT");
+                document.getElementById('new-vault-num').value = '';
+                document.getElementById('new-vault-name').value = '';
+                syncVault();
+            } catch (e) { showToast("ADD FAILED"); }
+        }
+
+        function renderVaultSidebar() {
+            const list = document.getElementById('vault-items-container');
+            const search = document.getElementById('search-num').value.toLowerCase();
+            list.innerHTML = '';
+
+            const filtered = vaultData.filter(v => v.phone_number.includes(search) || v.set_name.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="py-24 text-center opacity-20 text-[10px] uppercase font-black">No nodes in vault</div>`;
+                return;
+            }
+
+            filtered.forEach(v => {
+                const div = document.createElement('div');
+                div.className = `p-5 rounded-3xl border border-white/5 bg-white/[0.01] cursor-pointer transition-all hover:bg-white/5 flex flex-col gap-1 group`;
+                div.onclick = () => { selectFromVault(v); };
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <p class="text-xs font-black text-white group-hover:text-primary transition-colors">${v.phone_number}</p>
+                        <span class="text-[7px] px-2 py-0.5 bg-white/5 border border-white/10 rounded-full font-black text-gray-500">${v.service_tag}</span>
+                    </div>
+                    <p class="text-[8px] text-gray-600 font-black uppercase tracking-widest">${v.set_name}</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function selectFromVault(v) {
+            let log = JSON.parse(localStorage.getItem('dl_day_limit') || '{"date":"","list":[]}');
+            if (log.date !== new Date().toDateString()) log = { date: new Date().toDateString(), list: [] };
+
+            if (!log.list.includes(v.phone_number)) {
+                if (log.list.length >= 5) return showToast("DAILY NODE LIMIT REACHED");
+                log.list.push(v.phone_number);
+                localStorage.setItem('dl_day_limit', JSON.stringify(log));
+                processUsage(cloudData.nums);
+            }
+
+            activeNum = v.phone_number;
+            localStorage.setItem('dl_last_num', v.phone_number);
+            setSidebarTab('sessions');
+            selectNode({ number: v.phone_number, type: v.service_tag });
+            showToast("NODE ADDED TO SESSIONS");
+        }
+
+        // TIMER LOGIC
+        window.startCaptureRequest = () => {
+            if (!activeNum) return showToast("SELECT A NUMBER FIRST");
+            if (captureTimer) return showToast("REQUEST ALREADY ACTIVE");
+
+            activeRequestNumber = activeNum;
+            captureTimeLeft = 1200; // 20 minutes
+            updateCaptureUI(true);
+
+            document.getElementById('sfx-success').play();
+            showToast("CAPTURE TIMER STARTED (20 MINS)");
+
+            captureTimer = setInterval(() => {
+                captureTimeLeft--;
+                updateCaptureUI();
+
+                if (captureTimeLeft <= 0) {
+                    stopCaptureRequest(false);
+                }
+            }, 1000);
+        };
+
+        function updateCaptureUI(show = true) {
+            const timerRing = document.getElementById('capture-timer-ring');
+            const timerDisplay = document.getElementById('capture-timer-display');
+            const btn = document.getElementById('btn-capture-req');
+
+            if (!show) {
+                timerRing.classList.add('hidden');
+                timerDisplay.classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-rounded text-sm">bolt</span> Request Code`;
+                btn.className = "px-8 py-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3";
+                return;
+            }
+
+            timerRing.classList.remove('hidden');
+            timerDisplay.classList.remove('hidden');
+            btn.disabled = true;
+            btn.className = "px-8 py-4 bg-white/5 text-gray-700 text-[10px] font-black uppercase tracking-widest rounded-2xl border border-white/10 flex items-center gap-3 cursor-not-allowed";
+
+            const mins = Math.floor(captureTimeLeft / 60);
+            const secs = captureTimeLeft % 60;
+            const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            timerDisplay.innerText = timeStr;
+            btn.innerHTML = `<span class="material-symbols-rounded text-sm animate-spin">sync</span> WAITING... (${timeStr})`;
+        }
+
+        async function handleCaptureSuccess(code) {
+            stopCaptureRequest(true);
+            showToast("SUCCESS: CODE RECEIVED");
+
+            // Permanently remove from vault
+            try {
+                // Find node ID in vaultData
+                const node = vaultData.find(v => v.phone_number === activeRequestNumber);
+                if (node) {
+                    await supabase.from('dl_number_sets').delete().eq('id', node.id);
+                    syncVault();
+                    showToast("NODE USED & REMOVED FROM VAULT");
+                }
+            } catch (e) { console.error("Vault Removal Fail", e); }
+        }
+
+        function stopCaptureRequest(success = false) {
+            clearInterval(captureTimer);
+            captureTimer = null;
+            updateCaptureUI(false);
+
+            if (!success) {
+                showToast("TIME EXPIRED: NO CODE RECEIVED");
+                // Number stays in vault, but we reset our internal view
+            }
+            activeRequestNumber = null;
+        }
+
+        // HISTORY FETCH (SUPABASE)
+        async function fetchHistory() {
+            const feed = document.getElementById('history-feed');
+            feed.innerHTML = `<div class="text-center py-40 opacity-20 animate-pulse uppercase font-black text-xs tracking-widest italic">Decrypting Vault Records...</div>`;
+
+            try {
+                const { data, error } = await supabase
+                    .from('dl_sms_history')
+                    .select('*')
+                    .order('received_at', { ascending: false })
+                    .limit(100);
+
+                if (error) throw error;
+                historyData = data || [];
+                renderHistory();
+            } catch (err) {
+                feed.innerHTML = `<div class="text-center py-40 text-red-600/50 uppercase font-black text-xs">Vaut Connection Denied: ${err.message}</div>`;
+            }
+        }
+
+        function renderHistory() {
+            const feed = document.getElementById('history-feed');
+            const search = document.getElementById('hist-search').value.toLowerCase();
+
+            let filtered = historyData;
+            if (search) {
+                filtered = historyData.filter(m =>
+                    m.phone_number.includes(search) ||
+                    m.content.toLowerCase().includes(search) ||
+                    m.otp_code.toLowerCase().includes(search)
+                );
+            }
+
+            feed.innerHTML = '';
+            if (filtered.length === 0) {
+                feed.innerHTML = `<div class="text-center py-40 opacity-20 uppercase font-black text-xs">No records found matching query</div>`;
+                return;
+            }
+
+            filtered.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'glass p-8 bg-white/[0.02] border-l-4 border-white/5 hover:border-red-600 transition-all flex flex-col md:flex-row items-center gap-8 animate-in cursor-pointer';
+                div.onclick = () => { navigator.clipboard.writeText(m.otp_code); showToast('CODE COPIED: ' + m.otp_code); };
+                div.innerHTML = `
+                    <div class="flex-1 w-full">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-[10px] font-extrabold text-${m.service === 'WhatsApp' ? 'green' : 'red'}-600 uppercase italic bg-${m.service === 'WhatsApp' ? 'green' : 'red'}-600/10 px-3 py-1 rounded-full">${m.service}</span>
+                            <span class="text-[9px] font-black text-gray-600 uppercase">${m.phone_number}</span>
+                            <span class="text-[9px] text-gray-700 font-mono ml-auto">${new Date(m.received_at).toLocaleString()}</span>
+                        </div>
+                        <p class="text-sm text-gray-400 italic ${isBlurActive ? 'blur-mode' : ''}">"${m.content}"</p>
+                    </div>
+                    <div class="bg-white/5 px-8 py-4 rounded-2xl border border-white/5 group-hover:bg-red-600 transition-all">
+                        <p class="text-2xl font-black italic tracking-widest ${isBlurActive ? 'blur-mode' : ''}">${m.otp_code}</p>
+                    </div>
+                `;
+                feed.appendChild(div);
+            });
+        }
+
+        // NODE MANAGEMENT
+        function processUsage(nums) {
+            if (!nums) return;
+            let log = JSON.parse(localStorage.getItem('dl_day_limit') || '{"date":"","list":[]}');
+            if (log.date !== new Date().toDateString()) log = { date: new Date().toDateString(), list: [] };
+
+            nums.forEach(n => {
+                if (!log.list.includes(n.number) && log.list.length < 5) log.list.push(n.number);
+            });
+            localStorage.setItem('dl_day_limit', JSON.stringify(log));
+
+            const count = log.list.length;
+            document.getElementById('limit-top').innerText = `${count} / 5 used`;
+            document.getElementById('limit-percent').innerText = `${(count / 5) * 100}%`;
+            document.getElementById('limit-fill').style.width = `${(count / 5) * 100}%`;
+            document.getElementById('s-nums').innerText = `${count}/5`;
+        }
+
+        function renderMain() {
+            const list = document.getElementById('number-list');
+            const feed = document.getElementById('message-list');
+            const sn = document.getElementById('search-num').value.toLowerCase();
+            const sm = document.getElementById('msg-search').value.toLowerCase();
+
+            if (sidebarTab === 'vault') {
+                renderVaultSidebar();
+            }
+
+            const limitList = JSON.parse(localStorage.getItem('dl_day_limit') || '{"list":[]}').list;
+
+            if (cloudData.nums) {
+                const myNodes = cloudData.nums.filter(n => limitList.includes(n.number)).filter(n => n.number.includes(sn));
+                document.getElementById('num-count').innerText = myNodes.length;
+                list.innerHTML = '';
+                myNodes.forEach(n => {
+                    const pref = nodePreferences[n.number] || {};
+                    const div = document.createElement('div');
+                    div.className = `num-card p-5 rounded-3xl border border-white/5 bg-white/[0.01] cursor-pointer transition-all hover:bg-white/5 flex justify-between items-center ${activeNum === n.number ? 'active' : ''} ${pref.starred ? 'starred' : ''}`;
+                    div.onclick = () => { selectNode(n); };
+                    div.innerHTML = `
+                        <div>
+                            <p class="text-xs font-black ${isBlurActive ? 'blur-mode' : ''}">${n.number}</p>
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mt-1 flex items-center gap-2">
+                                ${n.type} ${pref.starred ? '<span class="text-amber-500 text-[10px]">★</span>' : ''}
+                            </p>
+                        </div>
+                        <span class="material-symbols-rounded text-sm opacity-20">navigate_next</span>`;
+                    list.appendChild(div);
+                });
+            }
+
+            if (activeNum && cloudData.msgs) {
+                let items = cloudData.msgs.filter(m => m.num === activeNum);
+                if (currentFilter === 'codes') items = items.filter(m => m.code !== 'N/A');
+                if (sm) items = items.filter(m => m.msg.toLowerCase().includes(sm));
+                document.getElementById('msg-stat').innerText = `${items.length} Packets Captured`;
+
+                feed.innerHTML = '';
+                if (items.length === 0) {
+                    feed.innerHTML = `<div class="py-20 text-center opacity-10 animate-in italic text-xs uppercase font-black">Scanning for encrypted signals...</div>`;
+                } else {
+                    items.forEach(m => {
+                        const card = document.createElement('div');
+                        card.className = 'glass p-10 bg-white/[0.02] border-l-4 border-red-600/20 hover:border-red-600 transition-all cursor-pointer group flex flex-col xl:flex-row items-center justify-between gap-10 animate-in';
+                        card.onclick = () => { navigator.clipboard.writeText(m.code); showToast('CODE COPIED'); document.getElementById('sfx-success').play(); };
+                        card.innerHTML = `
+                            <div class="flex-1 w-full">
+                                <p class="text-[10px] font-black text-red-600 uppercase mb-3 tracking-widest flex items-center gap-2 animate-pulse"><span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>Signal Intercepted</p>
+                                <p class="text-base text-gray-200 font-medium italic ${isBlurActive ? 'blur-mode' : ''}">"${m.msg}"</p>
+                            </div>
+                            <div class="text-right flex items-center gap-10">
+                                <div class="h-12 w-px bg-white/5 hidden xl:block"></div>
+                                <div>
+                                    <div class="bg-red-600/10 px-10 py-5 rounded-[2.5rem] border border-red-600/20 group-hover:bg-red-600 transition-all shadow-2xl">
+                                        <p class="text-4xl font-black text-white tracking-[0.3em] ${isBlurActive ? 'blur-mode' : ''}">${m.code}</p>
+                                    </div>
+                                    <p class="text-[9px] text-gray-600 font-black uppercase mt-3 tracking-widest">Captured ${new Date(m.time).toLocaleTimeString()}</p>
+                                </div>
+                            </div>`;
+                        feed.appendChild(card);
+                    });
+                }
+            }
+        }
+
+        function renderStats() {
+            if (!cloudData.msgs) return;
+            const target = document.getElementById('traffic-chart');
+            const map = {};
+            cloudData.msgs.forEach(m => { map[m.srv] = (map[m.srv] || 0) + 1; });
+            document.getElementById('s-total').innerText = cloudData.msgs.length;
+            target.innerHTML = '';
+            Object.entries(map).forEach(([name, count]) => {
+                const p = (count / cloudData.msgs.length) * 100;
+                target.innerHTML += `<div class="space-y-3"><div class="flex justify-between text-[10px] font-black uppercase"><span>${name}</span><span class="text-red-600">${count} captured</span></div><div class="h-2 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-red-600 shadow-[0_0_10px_#ff0000] rounded-full" style="width: ${p}%"></div></div></div>`;
+            });
+        }
+
+        // NAVIGATION & UI ACTIONS
+        window.setTab = (id) => {
+            ['inbox', 'history', 'stats', 'settings'].forEach(t => {
+                const v = document.getElementById('v-' + t);
+                const button = document.getElementById('t-' + t);
+                if (v) v.classList.add('hidden');
+                if (button) {
+                    button.classList.remove('active', 'text-white');
+                    button.classList.add('text-gray-500');
+                }
+            });
+            const activeV = document.getElementById('v-' + id);
+            const activeB = document.getElementById('t-' + id);
+            if (activeV) activeV.classList.remove('hidden');
+            if (activeB) activeB.classList.add('active', 'text-white');
+
+            if (id === 'history') fetchHistory();
+            renderMain();
+        };
+
+        function selectNode(n) {
+            activeNum = n.number;
+            localStorage.setItem('dl_last_num', n.number);
+            document.getElementById('active-title').innerText = n.number;
+            document.getElementById('active-sub').innerText = `Service Node: ${n.type}`;
+            document.getElementById('v-icon').innerText = n.type.toLowerCase().includes('whatsapp') ? 'phone_iphone' : 'sms';
+            renderMain();
+        }
+
+        window.openNodeDetails = () => {
+            if (!activeNum) return showToast('SELECT A NODE FIRST');
+            const pref = nodePreferences[activeNum] || {};
+            document.getElementById('det-num').innerText = activeNum;
+            document.getElementById('det-type').innerText = `Service: ${cloudData.nums.find(n => n.number === activeNum)?.type || 'Unknown'}`;
+            document.getElementById('det-notes').value = pref.notes || '';
+            document.getElementById('det-star').className = `px-6 py-3 rounded-2xl border text-[10px] font-black uppercase transition-all flex items-center gap-2 ${pref.starred ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-white/5 border-white/10 text-gray-500'}`;
+
+            const panel = document.getElementById('node-panel');
+            panel.classList.remove('hidden');
+            setTimeout(() => panel.style.transform = 'translateX(0)', 10);
+        };
+
+        window.closeNodeDetails = () => {
+            const panel = document.getElementById('node-panel');
+            panel.style.transform = 'translateX(100%)';
+            setTimeout(() => panel.classList.add('hidden'), 400);
+        };
+
+        window.toggleStar = () => {
+            const btn = document.getElementById('det-star');
+            const isStarred = btn.classList.contains('text-amber-500');
+            if (!isStarred) btn.className = 'px-6 py-3 rounded-2xl border bg-amber-500/10 border-amber-500/20 text-amber-500 text-[10px] font-black uppercase transition-all flex items-center gap-2';
+            else btn.className = 'px-6 py-3 rounded-2xl border bg-white/5 border-white/10 text-gray-500 text-[10px] font-black uppercase transition-all flex items-center gap-2';
+        };
+
+        window.saveNodeIntel = async () => {
+            const isStarred = document.getElementById('det-star').classList.contains('text-amber-500');
+            const notes = document.getElementById('det-notes').value;
+            nodePreferences[activeNum] = { starred: isStarred, notes };
+            localStorage.setItem('dl_node_prefs', JSON.stringify(nodePreferences));
+
+            // Push to Supabase optionally
+            try {
+                await supabase.from('dl_phone_nodes').upsert({ phone_number: activeNum, tags: isStarred ? ['starred'] : [], notes: notes });
+            } catch (e) { }
+
+            closeNodeDetails();
+            renderMain();
+            showToast('NODE INTELLIGENCE UPDATED');
+        };
+
+        window.setFilter = (f) => {
+            currentFilter = f;
+            document.getElementById('f-all').className = `px-8 py-3 text-[11px] font-black uppercase rounded-xl transition-all ${f === 'all' ? 'active bg-red-600 text-white shadow-xl' : 'text-gray-500 font-black'}`;
+            document.getElementById('f-codes').className = `px-8 py-3 text-[11px] font-black uppercase rounded-xl transition-all ${f === 'codes' ? 'active bg-red-600 text-white shadow-xl' : 'text-gray-500 font-black'}`;
+            renderMain();
+        };
+
+        window.togglePrivacy = () => {
+            isBlurActive = !isBlurActive;
+            document.getElementById('btn-privacy').className = `p-3.5 ${isBlurActive ? 'bg-red-600/10 text-red-600 border-red-600/20' : 'bg-white/5 text-gray-500 border-white/5'} rounded-2xl transition-all`;
+            renderMain();
+            renderHistory();
+        };
+
+        window.toggleAudio = () => {
+            isVolume = !isVolume;
+            document.getElementById('btn-audio').innerHTML = `<span class="material-symbols-rounded">${isVolume ? 'volume_up' : 'volume_off'}</span>`;
+        };
+
+        window.toggleAuto = () => {
+            isAutoCopy = !isAutoCopy;
+            document.getElementById('btn-auto').className = `p-3.5 ${isAutoCopy ? 'bg-red-600/10 text-red-600 border-red-600/20' : 'bg-white/5 text-gray-500 border-white/5'} rounded-2xl transition-all`;
+            if (isAutoCopy) showToast('BRIDGE MODE ENGAGED');
+        };
+
+        window.setTheme = (t) => {
+            document.body.setAttribute('data-theme', t);
+            ['dark', 'light', 'blue'].forEach(x => {
+                const btn = document.getElementById('btn-' + x);
+                btn.className = `w-16 h-16 rounded-3xl border transition-all hover:scale-110 ${t === x ? 'ring-4 ring-offset-4 ring-offset-black ring-red-600' : ''}`;
+                if (x === 'dark') btn.classList.add('bg-black', 'border-white/10');
+                if (x === 'blue') btn.classList.add('bg-blue-600', 'border-white/10');
+                if (x === 'light') btn.classList.add('bg-white', 'border-black/10');
+            });
+        };
+
+        window.showToast = (msg) => {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.className = 'fixed bottom-12 right-12 px-8 py-5 bg-white text-black rounded-[2rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl opacity-100 translate-y-0 transition-all z-[3000] border-4 border-black/5 flex items-center gap-4';
+            setTimeout(() => t.className = 'fixed bottom-12 right-12 px-8 py-5 bg-white text-black rounded-[2rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl opacity-0 translate-y-20 transition-all z-[3000] border-4 border-black/5 flex items-center gap-4', 3000);
+        };
+
+        window.logout = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
+        document.getElementById('search-num').addEventListener('input', renderMain);
+        document.getElementById('msg-search').addEventListener('input', renderMain);
+
+        // INITIALIZE
+        setTab('inbox');
+        if (activeNum) {
+            // Find type from cloudData if possible, or use default
+            const node = cloudData.nums?.find(n => n.number === activeNum);
+            selectNode({ number: activeNum, type: node?.type || 'Session Node' });
+        }
+    </script>
+</body>
+
+</html>

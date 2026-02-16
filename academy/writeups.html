@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Writeups | Legion Academy</title>
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,container-queries"></script>
+    <script src="../encryption_vault.js"></script>
+    <script type="module" src="../protection.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp, query, where, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+            measurementId: "G-GKNQ27DHDR"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        signInAnonymously(auth).catch(e => console.error(e));
+
+        window.firebaseAcademy = { db, collection, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp, query, where, onSnapshot, updateDoc };
+        window.firebaseEnabled = true;
+    </script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff002b",
+                        "bg-dark": "#050505",
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"],
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            background: #050505;
+            color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 43, 0.03) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 0, 43, 0.3);
+            box-shadow: 0 0 30px rgba(255, 0, 43, 0.1);
+        }
+
+        .shadow-glow {
+            box-shadow: 0 0 20px rgba(255, 0, 43, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 0, 43, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff002b;
+        }
+
+        .writeup-content {
+            line-height: 1.8;
+        }
+
+        .writeup-content h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #ff002b;
+        }
+
+        .writeup-content p {
+            margin-bottom: 1rem;
+        }
+
+        .writeup-content code {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            color: #ff002b;
+        }
+
+        .writeup-content pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-10">
+    <div id="notification-area" class="fixed top-6 right-6 z-[9999] flex flex-col gap-4"></div>
+
+    <div class="max-w-7xl mx-auto space-y-10">
+        <!-- Header -->
+        <header class="flex justify-between items-center animate-fadeInDown">
+            <div>
+                <h1 class="text-5xl font-black text-white uppercase tracking-tighter">Writeups & Solutions</h1>
+                <p class="text-primary text-xs font-black uppercase tracking-widest mt-2">Learn from the community</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="openSubmitModal()"
+                    class="px-6 py-3 bg-primary text-white rounded-2xl text-xs font-black uppercase shadow-glow hover:brightness-110">
+                    + Submit Writeup
+                </button>
+                <a href="index.html"
+                    class="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black text-white uppercase hover:border-primary/30 transition-all">
+                    Back to Academy
+                </a>
+            </div>
+        </header>
+
+        <!-- Filter -->
+        <div class="flex gap-4 flex-wrap animate-fadeIn">
+            <button onclick="filterWriteups('all')" id="filter-all"
+                class="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow">All</button>
+            <button onclick="filterWriteups('machines')" id="filter-machines"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Machines</button>
+            <button onclick="filterWriteups('ctf')" id="filter-ctf"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">CTF</button>
+            <button onclick="filterWriteups('challenges')" id="filter-challenges"
+                class="px-6 py-3 bg-white/5 text-gray-500 rounded-xl text-xs font-black uppercase hover:text-white">Challenges</button>
+        </div>
+
+        <!-- Writeups Grid -->
+        <div id="writeupsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeInUp delay-100">
+            <div class="col-span-full py-20 text-center">
+                <div
+                    class="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin">
+                </div>
+                <p class="text-xs text-gray-500 font-black uppercase mt-4">Syncing Writeup Database...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Writeup Modal -->
+    <div id="submitModal"
+        class="fixed inset-0 z-[6000] hidden items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div class="glass-card max-w-2xl w-full p-10 border-primary/20 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-black text-white uppercase">Submit Writeup</h3>
+                <button onclick="closeSubmitModal()" class="text-gray-500 hover:text-white">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Challenge Name</label>
+                    <input type="text" id="writeupTitle" placeholder="e.g., Legacy Machine"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white mt-2 focus:border-primary outline-none">
+                </div>
+
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Type</label>
+                    <select id="writeupType"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white mt-2 focus:border-primary outline-none">
+                        <option value="machines">Machine</option>
+                        <option value="ctf">CTF Challenge</option>
+                        <option value="challenges">Academy Challenge</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Difficulty</label>
+                    <select id="writeupDifficulty"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white mt-2 focus:border-primary outline-none">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                        <option value="Insane">Insane</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-black text-gray-500 uppercase">Your Writeup (Markdown supported)</label>
+                    <textarea id="writeupContent" rows="10"
+                        placeholder="## Reconnaissance&#10;&#10;First, I scanned the target...&#10;&#10;```bash&#10;nmap -sC -sV 10.10.10.1&#10;```"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white mt-2 font-mono text-sm focus:border-primary outline-none"></textarea>
+                </div>
+
+                <button onclick="submitWriteup()"
+                    class="w-full py-4 bg-primary text-white rounded-xl text-xs font-black uppercase shadow-glow hover:brightness-110">
+                    Publish Writeup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Writeup Modal -->
+    <div id="viewModal"
+        class="fixed inset-0 z-[6000] hidden items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div class="glass-card max-w-4xl w-full p-10 border-primary/20 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 id="viewTitle" class="text-3xl font-black text-white uppercase"></h3>
+                    <div class="flex gap-4 mt-3">
+                        <span id="viewType" class="text-xs font-black text-primary uppercase"></span>
+                        <span id="viewDifficulty" class="text-xs font-black text-gray-500 uppercase"></span>
+                        <span id="viewAuthor" class="text-xs font-black text-gray-500 uppercase"></span>
+                    </div>
+                </div>
+                <button onclick="closeViewModal()" class="text-gray-500 hover:text-white">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <div id="viewContent" class="writeup-content text-gray-300 text-sm">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.writeups = [];
+        // We do NOT load main.js onload for 'renderWriteups' because main.js doesn't know about writeups.
+        // We handle logic manually here but using main.js globals.
+
+        window.initWriteupsPage = async () => {
+            // Wait for firebaseAcademy
+            let attempts = 0;
+            while (!window.firebaseAcademy && attempts < 20) {
+                await new Promise(r => setTimeout(r, 200));
+                attempts++;
+            }
+            if (!window.firebaseAcademy) {
+                console.error("Firebase failed to init");
+                return;
+            }
+            await loadWriteups();
+            filterWriteups('all');
+        }
+
+        async function loadWriteups() {
+            const { db, collection, getDocs } = window.firebaseAcademy;
+            try {
+                const snap = await getDocs(collection(db, "writeups"));
+                window.writeups = [];
+                snap.forEach(d => window.writeups.push({ id: d.id, ...d.data() }));
+            } catch (e) {
+                console.warn("Failed to load writeups", e);
+            }
+        }
+
+        window.filterWriteups = (type) => {
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'shadow-glow');
+                btn.classList.add('bg-white/5', 'text-gray-500');
+            });
+            document.getElementById(`filter-${type}`).classList.add('bg-primary', 'text-white', 'shadow-glow');
+            document.getElementById(`filter-${type}`).classList.remove('bg-white/5', 'text-gray-500');
+            renderWriteups(type);
+        };
+
+        function renderWriteups(filter) {
+            const grid = document.getElementById('writeupsGrid');
+            let filtered = filter === 'all' ? window.writeups : window.writeups.filter(w => w.type === filter);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full glass-card p-20 text-center border-white/5">
+                        <span class="material-symbols-rounded text-6xl text-gray-700 mb-4">description</span>
+                        <h3 class="text-xl font-black text-white uppercase">No Writeups Yet</h3>
+                        <p class="text-gray-500 text-sm mt-2">Be the first to share your solution!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const diffColors = {
+                Easy: 'text-green-500',
+                Medium: 'text-yellow-500',
+                Hard: 'text-orange-500',
+                Insane: 'text-red-500'
+            };
+
+            grid.innerHTML = filtered.map(w => `
+                <div onclick="viewWriteup('${w.id}')" class="glass-card overflow-hidden border-white/5 hover:border-primary/30 transition-all cursor-pointer">
+                    <div class="h-40 relative bg-gradient-to-br from-primary/10 to-transparent flex items-center justify-center">
+                        <span class="material-symbols-rounded text-7xl text-white/10">description</span>
+                        <div class="absolute top-4 right-4 bg-black/60 px-3 py-1 rounded-full text-xs font-black ${diffColors[w.difficulty] || 'text-white'} uppercase">
+                            ${w.difficulty}
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-3">
+                        <h4 class="text-sm font-black text-white uppercase truncate">${w.title}</h4>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-primary font-black uppercase">${w.type}</span>
+                            <span class="text-gray-500 font-medium">by ${w.author || 'Anonymous'}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                            <span class="material-symbols-rounded text-sm">visibility</span>
+                            <span>${w.views || 0} views</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.openSubmitModal = () => {
+            if (!localStorage.getItem('academy_auth_token')) { // Basic check, main.js handles deeper auth
+                showNotice('Access Denied', 'Authentication required.', 'error');
+                return;
+            }
+            document.getElementById('submitModal').classList.remove('hidden');
+            document.getElementById('submitModal').classList.add('flex');
+        };
+
+        window.closeSubmitModal = () => {
+            document.getElementById('submitModal').classList.add('hidden');
+            document.getElementById('submitModal').classList.remove('flex');
+        };
+
+        window.submitWriteup = async () => {
+            const title = document.getElementById('writeupTitle').value.trim();
+            const type = document.getElementById('writeupType').value;
+            const difficulty = document.getElementById('writeupDifficulty').value;
+            const content = document.getElementById('writeupContent').value.trim();
+
+            if (!title || !content) {
+                showNotice("Error", "All fields required.", "error");
+                return;
+            }
+
+            // Re-using showNotice from main.js if available, else alert
+            // But we are about to load main.js
+
+            const { db, collection, addDoc, serverTimestamp } = window.firebaseAcademy;
+            try {
+                const authorId = localStorage.getItem('academy_auth_token') || 'Anonymous';
+                await addDoc(collection(db, "writeups"), {
+                    title,
+                    type,
+                    difficulty,
+                    content,
+                    author: authorId,
+                    views: 0,
+                    timestamp: serverTimestamp()
+                });
+
+                if (window.showNotice) showNotice('Success', 'Writeup published!', 'success');
+                else alert('Published!');
+
+                closeSubmitModal();
+                const inputs = document.querySelectorAll('#submitModal input, #submitModal textarea');
+                inputs.forEach(i => i.value = '');
+
+                await loadWriteups();
+                filterWriteups('all');
+            } catch (e) {
+                console.error(e);
+                if (window.showNotice) showNotice('Error', e.message, 'error');
+            }
+        };
+
+        window.viewWriteup = (id) => {
+            const w = window.writeups.find(w => w.id === id);
+            if (!w) return;
+
+            document.getElementById('viewTitle').innerText = w.title;
+            document.getElementById('viewType').innerText = w.type;
+            document.getElementById('viewDifficulty').innerText = w.difficulty;
+            document.getElementById('viewAuthor').innerText = `By ${w.author || 'Anonymous'}`;
+
+            // Simple markdown parser
+            let html = w.content
+                .replace(/### (.*)/g, '<h3 class="text-primary font-bold text-lg mt-4">$1</h3>')
+                .replace(/## (.*)/g, '<h2 class="text-white font-bold text-xl mt-6 border-b border-white/10 pb-2">$1</h2>')
+                .replace(/```([\s\S]*?)```/g, '<pre class="bg-black/50 p-4 rounded-lg my-4 overflow-x-auto border border-white/10"><code class="text-green-400 font-mono text-xs">$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code class="bg-white/10 px-1 rounded text-primary font-mono text-xs">$1</code>')
+                .replace(/\n/g, '<br>');
+
+            document.getElementById('viewContent').innerHTML = html;
+
+            document.getElementById('viewModal').classList.remove('hidden');
+            document.getElementById('viewModal').classList.add('flex');
+        };
+
+        window.closeViewModal = () => {
+            document.getElementById('viewModal').classList.add('hidden');
+            document.getElementById('viewModal').classList.remove('flex');
+        };
+
+        // Start
+        window.renderWriteups = renderWriteups; // export
+        window.addEventListener('DOMContentLoaded', initWriteupsPage);
+    </script>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

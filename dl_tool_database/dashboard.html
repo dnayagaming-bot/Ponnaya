@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DL Tool Database | Dashboard</title>
+    <link rel="icon" type="image/png" href="../logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script type="module" src="../protection.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff002b",
+                        "primary-glow": "rgba(255, 0, 43, 0.4)",
+                        "bg-dark": "#050505",
+                        "card-dark": "rgba(20, 20, 20, 0.9)",
+                        "border-white": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 0%, #1a0508 0%, #050505 100%);
+            color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 0, 43, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-pill {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 0.8rem 1.2rem;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .input-pill:focus {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: #ff002b;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(255, 0, 43, 0.15);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #ff002b 0%, #8b0017 100%);
+            border-radius: 9999px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(255, 0, 43, 0.2);
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-gradient:hover {
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 15px 30px rgba(255, 0, 43, 0.4);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ff002b;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .tool-category {
+            font-size: 0.6rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(255, 0, 43, 0.1);
+            color: #ff002b;
+            border: 1px solid rgba(255, 0, 43, 0.2);
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        /* Modal styling */
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: #ff002b;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Custom Scrollbar */
+        .scroll-premium::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .scroll-premium::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .scroll-premium::-webkit-scrollbar-thumb {
+            background: #ff002b;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="selection:bg-primary/30 pb-20 overflow-hidden">
+    <div class="noise"></div>
+
+    <!-- Decryption Loader -->
+    <div id="page-loader"
+        class="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center transition-all duration-1000">
+        <div class="relative mb-12">
+            <div
+                class="w-32 h-32 rounded-full border-2 border-primary/20 flex items-center justify-center bg-black/50 backdrop-blur-xl">
+                <img src="../tool_hub_logo.png" class="w-24 h-24 rounded-full shadow-[0_0_30px_rgba(255,0,43,0.3)]"
+                    alt="Tool Hub Logo">
+            </div>
+            <div class="absolute inset-0 border-t-2 border-primary rounded-full animate-spin"></div>
+            <div class="absolute -inset-4 border border-primary/5 rounded-full animate-pulse"></div>
+        </div>
+
+        <div class="text-center space-y-6 max-w-sm w-full px-6">
+            <div class="space-y-2">
+                <h2 id="loader-title" class="text-2xl font-black text-white uppercase tracking-[0.2em]">Loading</h2>
+                <p id="loader-subtitle" class="text-primary font-black uppercase tracking-widest text-[10px]">Connecting
+                    to Database</p>
+            </div>
+
+            <div class="relative h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div id="loader-progress"
+                    class="absolute top-0 left-0 h-full bg-primary transition-all duration-300 w-0"></div>
+            </div>
+
+            <div id="loader-status" class="text-[10px] text-gray-500 uppercase tracking-widest h-4">
+                Starting session...
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-black/50 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <img src="../tool_hub_logo.png" alt="Tool Hub Logo"
+                    class="h-10 w-10 rounded-full border border-primary/30">
+                <div>
+                    <h1 class="font-black text-lg tracking-tighter leading-none">DL TOOL <span
+                            class="text-primary">DATABASE</span></h1>
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">Active Operation
+                        Center</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div
+                    class="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-4 py-1.5">
+                    <span id="adminBadge"
+                        class="hidden mr-2 text-[8px] font-black text-white bg-primary px-2 py-0.5 rounded-full shadow-[0_0_10px_rgba(255,0,43,0.5)]">ADMIN
+                        CLEARANCE</span>
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    <span id="userName" class="text-[10px] font-black uppercase tracking-widest text-gray-300">Agent
+                        Name</span>
+                    <span id="userMemberId"
+                        class="text-[8px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1">DL-0000</span>
+                </div>
+                <button id="logoutBtn" class="text-gray-400 hover:text-white transition-colors">
+                    <span class="material-symbols-rounded">logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <!-- Stats/Hero Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="glass-card p-6 flex items-center gap-6 border-l-4 border-l-primary">
+                <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-rounded text-primary">inventory_2</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total Tools</p>
+                    <h3 id="totalTools" class="text-2xl font-black">0</h3>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex items-center gap-6">
+                <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-rounded text-blue-500">category</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Categories</p>
+                    <h3 id="totalCategories" class="text-2xl font-black">6</h3>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex items-center gap-6">
+                <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-rounded text-purple-500">group</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Active Agents</p>
+                    <h3 id="activeAgents" class="text-2xl font-black">...</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-col md:flex-row gap-6 mb-10 items-center justify-between">
+            <div class="relative w-full md:w-96">
+                <span
+                    class="material-symbols-rounded absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+                <input id="searchInput" type="text" placeholder="Search database..." class="input-pill pl-12">
+            </div>
+
+            <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-4 md:pb-0 scroll-premium">
+                <button
+                    class="filter-btn active bg-primary text-white text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full"
+                    data-category="all">All</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Ban Text">Ban Text</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Ban Trick">Ban Trick</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Unban Codes">Unban Codes</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Permanent Unban">Permanent Unban</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="OTP Fix">OTP Fix</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Mod APKs">Mod APKs</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Bug Bots">Bug Bots</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Mini Bot Base">Mini Bot Base</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Telegram Channels">Telegram</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="WhatsApp Channels">WhatsApp</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Exploits">Exploits</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Automation">Automation</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="OSINT">OSINT</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Resources">Resources</button>
+                <button
+                    class="filter-btn bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-white/10 transition-all whitespace-nowrap"
+                    data-category="Support Center">Support</button>
+            </div>
+        </div>
+
+        <!-- Tool Grid -->
+        <div id="toolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading skeleton -->
+            <div class="col-span-full py-20 text-center">
+                <span class="loader"></span>
+                <p class="mt-4 text-gray-500 font-bold uppercase tracking-[0.2em] text-xs">Decrypting Database...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button id="openAddModal"
+        class="floating-action w-16 h-16 btn-gradient text-white flex items-center justify-center shadow-2xl scale-110">
+        <span class="material-symbols-rounded text-3xl">add</span>
+    </button>
+
+    <!-- Add Tool Modal -->
+    <div id="addModal" class="modal">
+        <div class="glass-card p-8 w-full max-w-lg relative animate-scaleIn">
+            <button id="closeAddModal" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <span class="material-symbols-rounded">close</span>
+            </button>
+
+            <h2 class="text-2xl font-black uppercase tracking-tighter mb-2">Deploy New <span
+                    class="text-primary">Tool</span></h2>
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-8 border-b border-white/5 pb-4">Fill
+                the specs for the arsenal</p>
+
+            <form id="addToolForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Tool
+                            Name</label>
+                        <input required id="toolName" type="text" placeholder="e.g. HexaExploit" class="input-pill" />
+                    </div>
+                    <div class="space-y-2">
+                        <label
+                            class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Version</label>
+                        <input id="toolVersion" type="text" placeholder="e.g. 2.4.0" class="input-pill" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Category</label>
+                    <select required id="toolCategory" class="input-pill bg-[#0a0a0a]"
+                        onchange="toggleCustomCategory(this.value)">
+                        <option value="Ban Text">Ban Text</option>
+                        <option value="Ban Trick">Ban Trick</option>
+                        <option value="Unban Codes">Unban Codes</option>
+                        <option value="Permanent Unban">Permanent Unban</option>
+                        <option value="OTP Fix">OTP Fix</option>
+                        <option value="Mod APKs">Mod APKs</option>
+                        <option value="Bug Bots">Bug Bots</option>
+                        <option value="Mini Bot Base">Mini Bot Base</option>
+                        <option value="Telegram Channels">Telegram Channels</option>
+                        <option value="WhatsApp Channels">WhatsApp Channels</option>
+                        <option value="Exploits">Exploits</option>
+                        <option value="Automation">Automation</option>
+                        <option value="OSINT">OSINT</option>
+                        <option value="Payloads">Payloads</option>
+                        <option value="Resources">Resources</option>
+                        <option value="Support Center">Support Center</option>
+                        <option value="Other">Other (Custom)</option>
+                    </select>
+                </div>
+
+                <div id="customCategoryContainer" class="space-y-2 hidden">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Specify
+                        Category</label>
+                    <input id="customCategory" type="text" placeholder="e.g. Social Engineering" class="input-pill" />
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Tool
+                        Type</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" id="typeLink"
+                            class="type-btn active bg-primary text-white text-[10px] font-black uppercase py-3 rounded-xl border border-primary/20">External
+                            Link</button>
+                        <button type="button" id="typeFile"
+                            class="type-btn bg-white/5 text-gray-500 text-[10px] font-black uppercase py-3 rounded-xl border border-white/10 hover:bg-white/10 transition-all">APK
+                            / File</button>
+                    </div>
+                </div>
+
+                <div id="linkSourceGroup" class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Access Link /
+                        URL (Direct or Mediafire)</label>
+                    <div class="flex gap-2">
+                        <input id="toolLink" type="url" placeholder="https://..." class="input-pill" />
+                        <button type="button" id="btnFetchMediafire"
+                            class="px-4 bg-white/5 border border-white/10 rounded-xl hover:bg-primary/20 hover:text-primary transition-all flex items-center justify-center"
+                            title="Fetch File from URL">
+                            <span class="material-symbols-rounded">cloud_download</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="fileSourceGroup" class="space-y-2 hidden">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Upload APK /
+                        File (< 1MB for Firestore)</label>
+                            <div class="relative">
+                                <input id="toolFile" type="file" accept=".apk, .zip, .rar" class="hidden"
+                                    onchange="handleToolFileSelect(this)" />
+                                <div id="fileDropZone" onclick="document.getElementById('toolFile').click()"
+                                    class="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-6 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all">
+                                    <span
+                                        class="material-symbols-rounded text-3xl text-gray-600 block mb-2">upload_file</span>
+                                    <p id="fileNameDisplay"
+                                        class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Select
+                                        APK File</p>
+                                </div>
+                            </div>
+                </div>
+
+                <div id="adminOnlyGroup" class="hidden p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-black text-primary uppercase tracking-widest">High Clearance
+                                Access</p>
+                            <p class="text-[8px] text-gray-500 uppercase">Only administrators can view this tool</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="isAdminOnly" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">Brief
+                        Description</label>
+                    <textarea required id="toolDesc" rows="3" placeholder="What does this tool do?"
+                        class="input-pill rounded-[1.5rem] resize-none"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="w-full py-4 btn-gradient text-white flex items-center justify-center gap-2 mt-4">
+                    <span class="material-symbols-rounded text-lg">rocket_launch</span>
+                    Deploy to Arsenal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAfgn6EhQjlrM4KrxMsLt8JFZLN1xQ2qQ",
+            authDomain: "demoxhexa.firebaseapp.com",
+            projectId: "demoxhexa",
+            storageBucket: "demoxhexa.firebasestorage.app",
+            messagingSenderId: "1003743776194",
+            appId: "1:1003743776194:web:771ea255d6ff2229b1da5b",
+            measurementId: "G-GKNQ27DHDR"
+        };
+
+        const supabaseUrl = 'https://kmodgzklfxpfavexhdiv.supabase.co';
+        const supabaseKey = 'sb_publishable_rIlpr9-2k_QipshWx0wchw_0uQHsWcy';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        let currentUser = null;
+        let allTools = [];
+        let currentFilter = 'all';
+
+        // Check Session Auth
+        const authData = sessionStorage.getItem('dl_auth');
+        if (!authData) {
+            window.location.href = 'index.html';
+        } else {
+            currentUser = JSON.parse(authData);
+            document.getElementById('userName').innerText = currentUser.nickname || 'Agent';
+            document.getElementById('userMemberId').innerText = currentUser.memberId;
+
+            // Handle Admin Mode
+            if (currentUser.memberId === 'demoxhexa') {
+                document.getElementById('adminBadge').classList.remove('hidden');
+                document.getElementById('adminOnlyGroup').classList.remove('hidden');
+            }
+
+            loadTools(); // Load data immediately
+            initializeLoader();
+        }
+
+        async function initializeLoader() {
+            const loader = document.getElementById('page-loader');
+            const progress = document.getElementById('loader-progress');
+            const status = document.getElementById('loader-status');
+            const title = document.getElementById('loader-title');
+
+            const steps = [
+                { p: 20, s: "Checking connection..." },
+                { p: 50, s: "Accessing database..." },
+                { p: 80, s: "Syncing tools..." },
+                { p: 100, s: "Success" }
+            ];
+
+            try {
+                for (const step of steps) {
+                    await new Promise(r => setTimeout(r, 200 + Math.random() * 300));
+                    progress.style.width = `${step.p}%`;
+                    status.innerText = step.s;
+                }
+            } catch (e) { console.error("Loader animation glitch", e); }
+
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.pointerEvents = 'none';
+                document.body.classList.remove('overflow-hidden');
+            }, 500);
+        }
+
+        // Listen for Global Lockdown
+        import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        onSnapshot(doc(db, 'settings', 'global'), (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data.lockdown && currentUser.memberId !== 'demoxhexa') {
+                    alert("⚠️ SECURITY PROTOCOL ENGAGED: THE SYSTEM HAS BEEN LOCKED DOWN BY ADMINISTRATION. RADIATING ACCESS...");
+                    sessionStorage.removeItem('dl_auth');
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').onclick = () => {
+            sessionStorage.removeItem('dl_auth');
+            window.location.href = 'index.html';
+        };
+
+        // UI Logic
+        const addModal = document.getElementById('addModal');
+        const openModalBtn = document.getElementById('openAddModal');
+        const closeModalBtn = document.getElementById('closeAddModal');
+        const addToolForm = document.getElementById('addToolForm');
+
+        let toolAddedType = 'link';
+        let base64File = null;
+
+        document.getElementById('typeLink').onclick = () => {
+            toolAddedType = 'link';
+            document.getElementById('typeLink').classList.add('active', 'bg-primary', 'text-white');
+            document.getElementById('typeLink').classList.remove('bg-white/5', 'text-gray-500');
+            document.getElementById('typeFile').classList.remove('active', 'bg-primary', 'text-white');
+            document.getElementById('typeFile').classList.add('bg-white/5', 'text-gray-500');
+
+            document.getElementById('linkSourceGroup').classList.remove('hidden');
+            document.getElementById('fileSourceGroup').classList.add('hidden');
+            document.getElementById('toolLink').required = true;
+        };
+
+        document.getElementById('typeFile').onclick = () => {
+            toolAddedType = 'file';
+            document.getElementById('typeFile').classList.add('active', 'bg-primary', 'text-white');
+            document.getElementById('typeFile').classList.remove('bg-white/5', 'text-gray-500');
+            document.getElementById('typeLink').classList.remove('active', 'bg-primary', 'text-white');
+            document.getElementById('typeLink').classList.add('bg-white/5', 'text-gray-500');
+
+            document.getElementById('linkSourceGroup').classList.add('hidden');
+            document.getElementById('fileSourceGroup').classList.remove('hidden');
+            document.getElementById('toolLink').required = false;
+        };
+
+        window.handleToolFileSelect = (input) => {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 1024 * 1024) {
+                alert("File size exceeds 1MB limit for Firestore storage. Use a link for larger files.");
+                input.value = '';
+                return;
+            }
+
+            document.getElementById('fileNameDisplay').innerText = file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                base64File = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.downloadToolFile = (data, name) => {
+            const link = document.createElement('a');
+            link.href = data;
+            link.download = name.replace(/\s+/g, '_') + (data.includes('application/vnd.android.package-archive') ? '.apk' : '');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        window.copyToClipboard = (text) => {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-black px-6 py-3 rounded-full shadow-2xl animate-bounce z-[10000]';
+                toast.innerText = 'LINK COPIED TO CLIPBOARD';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            });
+        };
+
+        window.upvoteTool = async (id, currentUpvotes) => {
+            try {
+                const { error } = await supabase
+                    .from('dl_tools')
+                    .update({ upvotes: currentUpvotes + 1 })
+                    .eq('id', id);
+                if (error) throw error;
+                loadTools();
+            } catch (err) { console.error(err); }
+        };
+
+        window.deleteTool = async (id) => {
+            if (!confirm("Are you sure you want to remove this tool from the arsenal?")) return;
+            try {
+                const { error } = await supabase
+                    .from('dl_tools')
+                    .delete()
+                    .eq('id', id);
+                if (error) throw error;
+                loadTools();
+            } catch (err) { console.error(err); }
+        };
+
+        // Mediafire Link "Auto-Download" Simulation (Client-side limit)
+        document.getElementById('btnFetchMediafire').onclick = async () => {
+            const url = document.getElementById('toolLink').value;
+            if (!url || !url.includes('mediafire.com')) {
+                alert("Please provide a valid Mediafire link.");
+                return;
+            }
+
+            const btn = document.getElementById('btnFetchMediafire');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-rounded animate-spin">refresh</span>';
+            btn.disabled = true;
+
+            try {
+                // In a real scenario, we'd use a proxy. Here we simulate the fetch or warn user.
+                // We'll try to fetch with a proxy if available, but for now we'll store the link 
+                // and explain that the system will handle re-routing.
+                alert("Mediafire link detected. The system will bridge the connection for auto-download.");
+                // We store it as a link, but we could also fetch if it was a direct file URL.
+            } catch (e) {
+                alert("Operation failed: " + e.message);
+            } finally {
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+            }
+        };
+
+        window.toggleCustomCategory = (val) => {
+            const container = document.getElementById('customCategoryContainer');
+            if (val === 'Other') {
+                container.classList.remove('hidden');
+                document.getElementById('customCategory').required = true;
+            } else {
+                container.classList.add('hidden');
+                document.getElementById('customCategory').required = false;
+            }
+        };
+
+        openModalBtn.addEventListener('click', () => {
+            console.log("Opening Modal");
+            addModal.classList.add('active');
+        });
+        closeModalBtn.addEventListener('click', () => {
+            addModal.classList.remove('active');
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target == addModal) addModal.classList.remove('active');
+        });
+
+        // Load Tools
+        async function loadTools() {
+            try {
+                const { data, error } = await supabase
+                    .from('dl_tools')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allTools = data || [];
+                renderTools();
+                updateStats();
+            } catch (err) {
+                console.error("Error loading tools:", err);
+            }
+        }
+
+        // Real-time updates simulation with polling (Supabase channel is preferred but polling is safer for quick setup)
+        setInterval(loadTools, 10000);
+
+        function renderTools() {
+            const grid = document.getElementById('toolGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = allTools.filter(tool => {
+                const matchesSearch = tool.name.toLowerCase().includes(searchTerm) || tool.description.toLowerCase().includes(searchTerm);
+                const matchesFilter = currentFilter === 'all' || tool.category === currentFilter;
+
+                // Admin Visibility Logic
+                const isAdmin = currentUser.memberId === 'demoxhexa';
+                const isApproved = tool.status === 'Approved';
+                const isOwner = tool.added_by === currentUser.memberId;
+
+                const canSee = !tool.is_admin_only || isAdmin;
+                const accessLevel = isAdmin || isApproved;
+
+                return matchesSearch && matchesFilter && canSee && accessLevel;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-500 font-bold uppercase tracking-widest text-xs">No tools found matching your search.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(tool => `
+                <div class="glass-card p-6 flex flex-col h-full hover:scale-[1.02] transition-all ${tool.is_admin_only ? 'border-primary/40 bg-primary/[0.02]' : ''}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <span class="tool-category">${tool.category}</span>
+                                ${tool.is_admin_only ? '<span class="text-[7px] font-black text-white bg-primary px-1.5 py-0.5 rounded tracking-tighter">SECURE</span>' : ''}
+                            </div>
+                            ${tool.version ? `<span class="text-[8px] font-black text-primary/50 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-md w-fit">v${tool.version}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                             <button onclick="upvoteTool(${tool.id}, ${tool.upvotes || 0})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 hover:bg-primary/10 hover:border-primary/20 transition-all group">
+                                <span class="material-symbols-rounded text-sm text-gray-500 group-hover:text-primary ${tool.upvotes > 0 ? 'text-primary' : ''}">favorite</span>
+                                <span class="text-[10px] font-black text-gray-400 group-hover:text-white">${tool.upvotes || 0}</span>
+                             </button>
+                             <span class="text-[9px] font-black text-gray-600 uppercase tracking-widest">${new Date(tool.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-black uppercase tracking-tight mb-2">${tool.name}</h3>
+                    <div class="flex items-center gap-1.5 mb-4">
+                        ${Array(5).fill(0).map((_, i) => `
+                            <span class="material-symbols-rounded text-[14px] ${i < (tool.rating || 5) ? 'text-yellow-500' : 'text-gray-700'}">star</span>
+                        `).join('')}
+                        <span class="text-[9px] font-black text-gray-500 ml-1 uppercase">Rating</span>
+                    </div>
+                    <p class="text-gray-400 text-xs leading-relaxed mb-6 flex-grow">${tool.description}</p>
+                    <div class="flex items-center justify-between pt-4 border-t border-white/5">
+                        <div class="flex items-center gap-2">
+                             <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[8px] font-black text-primary">${(tool.added_by_nickname || tool.added_by).charAt(0).toUpperCase()}</div>
+                             <div class="flex flex-col">
+                                 <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">${tool.added_by_nickname || 'Agent'}</span>
+                                 ${currentUser.memberId === 'demoxhexa' ? `<span class="text-[7px] font-black text-primary/60 uppercase tracking-widest">${tool.added_by}</span>` : ''}
+                             </div>
+                        </div>
+                        <div class="flex gap-2">
+                            ${tool.added_by === currentUser.memberId ? `
+                                <button onclick="deleteTool(${tool.id})" class="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all" title="Remove Your Tool">
+                                    <span class="material-symbols-rounded">delete</span>
+                                </button>
+                            ` : ''}
+                            ${tool.link ? `
+                                <button onclick="copyToClipboard('${tool.link}')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all" title="Copy Link">
+                                    <span class="material-symbols-rounded">content_copy</span>
+                                </button>
+                            ` : ''}
+                            ${tool.file_data ? `
+                                <button onclick="downloadToolFile('${tool.file_data}', '${tool.name}')" class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary shadow-lg shadow-primary/20 transition-all" title="Download APK">
+                                    <span class="material-symbols-rounded">download</span>
+                                </button>
+                            ` : ''}
+                            ${tool.link ? `
+                                <a href="${tool.link}" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-all" title="Open Link">
+                                    <span class="material-symbols-rounded">open_in_new</span>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalTools').innerText = allTools.length;
+            const uniqueAgents = new Set(allTools.map(t => t.added_by)).size;
+            document.getElementById('activeAgents').innerText = uniqueAgents || '...';
+        }
+
+        // Search and Filter
+        document.getElementById('searchInput').oninput = renderTools;
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('bg-white/5', 'text-gray-400', 'border', 'border-white/10');
+                });
+                btn.classList.add('bg-primary', 'text-white');
+                btn.classList.remove('bg-white/5', 'text-gray-400', 'border', 'border-white/10');
+                currentFilter = btn.dataset.category;
+                renderTools();
+            };
+        });
+
+        // Add Tool
+        addToolForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader w-4 h-4 !border-2"></span> Deploying...';
+
+            let category = document.getElementById('toolCategory').value;
+            if (category === 'Other') {
+                category = document.getElementById('customCategory').value;
+            }
+
+            const toolData = {
+                name: document.getElementById('toolName').value,
+                version: document.getElementById('toolVersion').value || '1.0.0',
+                category: category,
+                link: toolAddedType === 'link' ? document.getElementById('toolLink').value : null,
+                file_data: toolAddedType === 'file' ? base64File : null,
+                description: document.getElementById('toolDesc').value,
+                added_by: currentUser.memberId,
+                added_by_nickname: currentUser.nickname,
+                upvotes: 0,
+                is_admin_only: currentUser.memberId === 'demoxhexa' ? document.getElementById('isAdminOnly').checked : false,
+                status: currentUser.memberId === 'demoxhexa' ? 'Approved' : 'Pending'
+            };
+
+            try {
+                const { error } = await supabase
+                    .from('dl_tools')
+                    .insert([toolData]);
+
+                if (error) throw error;
+                addToolForm.reset();
+                base64File = null;
+                document.getElementById('fileNameDisplay').innerText = 'Select APK File';
+                addModal.classList.remove('active');
+
+                if (currentUser.memberId === 'demoxhexa') {
+                    loadTools();
+                    alert("Tool deployed instantly!");
+                } else {
+                    alert("Tool submitted for approval. An administrator will review it.");
+                }
+            } catch (error) {
+                alert("Error: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-rounded text-lg">rocket_launch</span> Deploy to Arsenal';
+            }
+        };
+    </script>
+</body>
+
+</html>

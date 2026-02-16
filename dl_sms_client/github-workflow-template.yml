@@ -1,0 +1,23 @@
+name: DL SMS Cloud Interceptor
+
+on:
+  schedule:
+    - cron: '*/10 * * * *' # Auto-run every 10 minutes
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  intercept:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploying Interceptor Node
+        uses: appleboy/github-action@v1 # Dummy placeholder for structure
+        
+      - name: SECURE_LOGIN
+        run: |
+          echo "Connecting to IVASMS Node..."
+          # This workflow will run the scraper-node sequence
+          
+      - name: CLOUD_SYNC
+        run: |
+          echo "Pushing packets to Firebase..."
+          # Data persists to demoxhexa project

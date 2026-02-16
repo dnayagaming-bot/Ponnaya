@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Chamber - CTF Challenge</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px #00ff00; font-size: 28px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .box {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .box h2 { color: #00ff00; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .box-admin { border-color: #ff4444; }
+        .box-admin h2 { color: #ff4444; }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: #00ff00; }
+        .box-admin input, .box-admin textarea { border-color: #ff4444; color: #ff4444; }
+        .box-admin input:focus, .box-admin textarea:focus { border-color: #ff6666; }
+        button {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        button:hover { background: #00ff00; color: #000; }
+        .box-admin button { border-color: #ff4444; color: #ff4444; }
+        .box-admin button:hover { background: #ff4444; color: #000; }
+        .preview { min-height: 100px; background: #0d0d0d; border: 1px dashed #333; padding: 15px; margin-top: 15px; border-radius: 4px; font-size: 13px; overflow-x: auto; }
+        .hint { color: #444; font-size: 12px; margin-top: 10px; font-style: italic; }
+        .debug-toggle {
+            position: fixed; top: 10px; right: 10px;
+            background: #222; border: 1px solid #444; color: #666;
+            padding: 5px 10px; font-size: 11px; cursor: pointer;
+            z-index: 1000;
+        }
+        .flag-display {
+            display: none;
+            background: linear-gradient(135deg, #00aa00, #00ff00);
+            color: #000;
+            padding: 40px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.5);
+        }
+        .error { color: #ff4444; }
+        .success { color: #00ff00; }
+        .debug-info {
+            display: none;
+            background: #0a0a2a;
+            border: 1px solid #4444ff;
+            font-size: 11px;
+            color: #888;
+        }
+        .decoy-flag {
+            display: none;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            padding: 15px;
+            font-family: monospace;
+            word-break: break-all;
+            color: #888;
+            margin-top: 15px;
+        }
+        .decoy-flag strong { color: #ffaa00; }
+        .hint-box {
+            background: #1a1a00;
+            border: 1px solid #444400;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaaa00;
+        }
+        .hint-box h3 { color: #cccc00; margin-bottom: 10px; }
+        .hint-box p { margin-bottom: 8px; }
+        .admin-badge {
+            display: inline-block;
+            background: #ff4444;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 10px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background: #00ff00; }
+        .status-waiting { background: #ffaa00; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00aa00, #00ff00);
+            transition: width 0.3s;
+        }
+        .guide-box {
+            background: #0a1a1a;
+            border: 1px solid #00ff00;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .guide-box h3 { color: #00ff00; margin-bottom: 15px; }
+        .guide-step {
+            background: #111;
+            border-left: 3px solid #00ff00;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+        }
+        .guide-step-num {
+            display: inline-block;
+            background: #00ff00;
+            color: #000;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .token-display {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            padding: 10px;
+            font-family: monospace;
+            color: #ffaa00;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>[ ECHO CHAMBER ]</h1>
+        <p class="subtitle">Hard Web Challenge | No Files | No Downloads</p>
+
+        <div class="guide-box">
+            <h3>// COMPLETE SOLUTION GUIDE</h3>
+            
+            <div class="guide-step">
+                <span class="guide-step-num">1</span>
+                <strong>Find the injectable endpoint</strong><br>
+                Use the API Preview endpoint. Try: <code>?q=test</code> - notice how your input appears in the JSON response.
+            </div>
+            
+            <div class="guide-step">
+                <span class="guide-step-num">2</span>
+                <strong>Inject Blind XSS</strong><br>
+                In the Admin Monitoring panel, inject a payload. The admin will view it and leak data.
+            </div>
+            
+            <div class="guide-step">
+                <span class="guide-step-num">3</span>
+                <strong>Get timing attack hint</strong><br>
+                After XSS triggers, admin data leaks - revealing the token verification uses timing differences.
+            </div>
+            
+            <div class="guide-step">
+                <span class="guide-step-num">4</span>
+                <strong>Run timing attack</strong><br>
+                Click "START TIMING ATTACK" to discover the token character by character.
+            </div>
+            
+            <div class="guide-step">
+                <span class="guide-step-num">5</span>
+                <strong>Submit token for flag</strong><br>
+                Use the discovered token to verify and get the flag!
+            </div>
+        </div>
+
+        <div class="box">
+            <h2>// SEARCH INTERFACE</h2>
+            <input type="text" id="searchInput" placeholder="Try: test, admin, flag...">
+            <button onclick="performSearch()">SEARCH</button>
+            <button onclick="clearSearch()">CLEAR</button>
+            <div class="preview" id="searchPreview"><em>Results will appear here...</em></div>
+            <p class="hint">Tip: Notice how your input is reflected in different contexts (HTML, JSON, JS).</p>
+        </div>
+
+        <div class="box">
+            <h2>// API PREVIEW ENDPOINT</h2>
+            <input type="text" id="apiInput" placeholder="Try: ?q=test">
+            <button onclick="fetchApiPreview()">FETCH PREVIEW</button>
+            <div class="preview" id="apiPreview"><em>JSON response will appear here...</em></div>
+            <p class="hint">This endpoint reflects user input directly into JSON. This is the injection point!</p>
+        </div>
+
+        <div class="box box-admin" id="adminPanel">
+            <h2>// ADMIN MONITORING <span class="admin-badge">RESTRICTED</span></h2>
+            <p style="color: #666; margin-bottom: 15px; font-size: 13px;">
+                <span class="status-indicator status-waiting" id="monitorStatus"></span>
+                Admin automatically views user-generated previews. Inject payloads to execute in admin context.
+            </p>
+            <label style="color: #ff6666; font-size: 12px;">INJECT XSS PAYLOAD:</label>
+            <textarea id="xssPayload" rows="3" placeholder="Enter XSS payload">&lt;script&gt;fetch(location.href+'?leak='+document.cookie)&lt;/script&gt;</textarea>
+            <button onclick="injectPayload()">INJECT PAYLOAD</button>
+            <div class="preview" id="adminPreview">
+                <strong>Admin Monitoring Log:</strong>
+                <div id="monitorLog" style="margin-top: 10px; color: #888;">
+                    Waiting for user previews...
+                </div>
+            </div>
+            <div class="decoy-flag" id="decoyFlag">
+                <strong>DECOY TOKEN FOUND:</strong><br>
+                <code>eyJyb2xlIjoiYWRtaW4ifQ==</code>
+            </div>
+        </div>
+
+        <div class="box">
+            <h2>// TOKEN VERIFICATION</h2>
+            <input type="text" id="adminToken" placeholder="Enter admin token (e.g., 3ch0_1s_n0t_s3cur3)...">
+            <button onclick="verifyToken()">VERIFY TOKEN</button>
+            <div class="preview" id="tokenResult"><em>Verification result will appear here...</em></div>
+            <p class="hint">The verification uses non-constant-time comparison. Correct characters take longer!</p>
+            
+            <div id="timingSection" style="display: none; margin-top: 15px;">
+                <button onclick="startTimingAttack()" style="border-color: #00aaff; color: #00aaff;">START TIMING ATTACK</button>
+                <div id="timingProgress" style="display: none;">
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+                    <span id="progressText" style="color: #00aaff; font-size: 12px;">Running timing attack...</span>
+                </div>
+                <div id="timingResults"></div>
+            </div>
+        </div>
+
+        <div class="box debug-info" id="debugPanel">
+            <h2>// DEBUG MODE</h2>
+            <p><strong>Session ID:</strong> <span id="sessionId">-</span></p>
+            <p><strong>Request Count:</strong> <span id="requestCount">0</span></p>
+            <p><strong>XSS Injected:</strong> <span id="xssInjected">No</span></p>
+            <p><strong>Data Leaked:</strong> <span id="dataLeaked">No</span></p>
+        </div>
+
+        <div class="flag-display" id="flagDisplay">
+            <div style="font-size: 16px; margin-bottom: 10px;">CONGRATULATIONS!</div>
+            <div>dl{token}</div>
+            <div style="font-size: 14px; margin-top: 15px; opacity: 0.8;">You solved Echo Chamber!</div>
+        </div>
+
+        <div class="hint-box">
+            <h3>// QUICK REFERENCE</h3>
+            <p><strong>Step 1:</strong> Use API Preview with ?q= to find injection point</p>
+            <p><strong>Step 2:</strong> Inject XSS in Admin Monitoring panel</p>
+            <p><strong>Step 3:</strong> Admin data leaks - reveals timing attack hint</p>
+            <p><strong>Step 4:</strong> Run timing attack to find token: <code>3ch0_1s_n0t_s3cur3</code></p>
+            <p><strong>Step 5:</strong> Submit token to get flag!</p>
+        </div>
+    </div>
+
+    <button class="debug-toggle" onclick="toggleDebug()">DEBUG MODE</button>
+
+    <script>
+        var gameState = {
+            requestCount: 0,
+            sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
+            correctToken: '3ch0_1s_n0t_s3cur3',
+            xssInjected: false,
+            adminDataLeaked: false,
+            lastVerifyTime: 0,
+            solved: false
+        };
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function performSearch() {
+            var query = document.getElementById('searchInput').value;
+            gameState.requestCount++;
+            var escapedQuery = escapeHtml(query);
+            var output = '<div style="margin-bottom: 10px;"><strong>Search Query:</strong> <code>' + escapedQuery + '</code></div>';
+            output += '<div style="color: #888; font-size: 12px;">';
+            output += '<strong>HTML Context:</strong> ' + escapedQuery + '<br>';
+            output += '<strong>JSON Context:</strong> "' + query + '"<br>';
+            output += '<strong>JS Context:</strong> "' + escapeHtml(query) + '"';
+            output += '</div>';
+            document.getElementById('searchPreview').innerHTML = output;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchPreview').innerHTML = '<em>Results will appear here...</em>';
+        }
+
+        function fetchApiPreview() {
+            var query = document.getElementById('apiInput').value;
+            if (!query) {
+                document.getElementById('apiPreview').innerHTML = '<span class="error">Error: No query provided</span>';
+                return;
+            }
+            gameState.requestCount++;
+            var qMatch = query.match(/[?&]q=([^&]*)/);
+            var qValue = qMatch ? decodeURIComponent(qMatch[1]) : query;
+            var response = { endpoint: '/api/preview', query: qValue, results: [], meta: { timestamp: Date.now() } };
+            if (qValue.toLowerCase().indexOf('test') !== -1) {
+                response.results = [{ id: 1, name: 'Test Item' }];
+            }
+            var jsonStr = JSON.stringify(response, null, 2);
+            document.getElementById('apiPreview').innerHTML = '<pre>' + escapeHtml(jsonStr) + '</pre>';
+            updateDebug();
+        }
+
+        function injectPayload() {
+            var payload = document.getElementById('xssPayload').value;
+            if (!payload) {
+                document.getElementById('monitorLog').innerHTML += '<div class="error">Error: No payload provided</div>';
+                return;
+            }
+            gameState.xssInjected = true;
+            gameState.requestCount++;
+            document.getElementById('monitorLog').innerHTML += '<div class="success">Payload injected successfully!</div>';
+            document.getElementById('monitorLog').innerHTML += '<div>Waiting for admin to view preview...</div>';
+            setTimeout(function() {
+                simulateAdminView(payload);
+            }, 500);
+            updateDebug();
+        }
+
+        function simulateAdminView(payload) {
+            gameState.adminDataLeaked = true;
+            document.getElementById('monitorLog').innerHTML += '<div class="success">[XSS EXECUTED IN ADMIN CONTEXT]</div>';
+            document.getElementById('monitorLog').innerHTML += '<div>Admin session accessed. Data leaked:</div>';
+            document.getElementById('monitorLog').innerHTML += '<div style="color: #ffaa00;">Token is 18 characters: 3ch0_1s_n0t_s3cur3</div>';
+            document.getElementById('monitorLog').innerHTML += '<div style="color: #00aaff;">Hint: Each correct character takes ~2-3ms longer to verify!</div>';
+            document.getElementById('decoyFlag').style.display = 'block';
+            document.getElementById('timingSection').style.display = 'block';
+            document.getElementById('monitorStatus').className = 'status-indicator status-active';
+            updateDebug();
+        }
+
+        function verifyToken(token) {
+            if (!token) token = document.getElementById('adminToken').value;
+            if (!token) {
+                document.getElementById('tokenResult').innerHTML = '<span class="error">Error: No token provided</span>';
+                return;
+            }
+            var correctToken = gameState.correctToken;
+            var startTime = performance.now();
+            var valid = true;
+            for (var i = 0; i < Math.max(token.length, correctToken.length); i++) {
+                var expectedChar = correctToken.charAt(i) || '';
+                var providedChar = token.charAt(i) || '';
+                if (expectedChar !== providedChar) {
+                    valid = false;
+                    break;
+                }
+                var work = 0.002 + Math.random() * 0.001;
+                var workStart = performance.now();
+                while (performance.now() - workStart < work * 1000) {}
+            }
+            var endTime = performance.now();
+            var elapsed = endTime - startTime;
+            gameState.lastVerifyTime = elapsed;
+            var message = valid ? 
+                '<span class="success">Token ACCEPTED! Verification time: ' + elapsed.toFixed(3) + 'ms</span>' : 
+                '<span class="error">Token REJECTED. Verification time: ' + elapsed.toFixed(3) + 'ms</span>';
+            if (valid && !gameState.solved) {
+                gameState.solved = true;
+                document.getElementById('flagDisplay').style.display = 'block';
+                message += '<br><br><span class="success" style="font-size: 16px;">ACCESS GRANTED! FLAG DISPLAYED ABOVE!</span>';
+            }
+            document.getElementById('tokenResult').innerHTML = message;
+            updateDebug();
+        }
+
+        function startTimingAttack() {
+            document.getElementById('timingProgress').style.display = 'block';
+            document.getElementById('timingResults').innerHTML = '';
+            var correctToken = gameState.correctToken;
+            var charset = 'abcdefghijklmnopqrstuvwxyz0123456789_';
+            var discovered = '';
+            var maxLen = correctToken.length;
+            var results = [];
+            var charIndex = 0;
+            
+            function processNextChar() {
+                if (charIndex >= maxLen) {
+                    showTimingResults(discovered, results);
+                    return;
+                }
+                var progress = ((charIndex + 1) / maxLen) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressText').textContent = 'Discovering character ' + (charIndex + 1) + ' of ' + maxLen + '...';
+                
+                var bestChar = '';
+                var bestTime = 0;
+                
+                for (var i = 0; i < charset.length; i++) {
+                    var char = charset.charAt(i);
+                    var testToken = discovered + char + Array(maxLen - charIndex - 1).join('_');
+                    var startTest = performance.now();
+                    var valid = true;
+                    for (var j = 0; j < correctToken.length; j++) {
+                        if (testToken.charAt(j) !== correctToken.charAt(j)) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    var testTime = performance.now() - startTest + (valid ? 2 + Math.random() : 0);
+                    if (testTime > bestTime) {
+                        bestTime = testTime;
+                        bestChar = char;
+                    }
+                }
+                
+                if (bestChar) {
+                    discovered += bestChar;
+                    results.push({ position: charIndex, char: bestChar, time: bestTime.toFixed(3) });
+                }
+                
+                charIndex++;
+                setTimeout(processNextChar, 100);
+            }
+            
+            processNextChar();
+        }
+
+        function showTimingResults(token, results) {
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('progressText').textContent = 'Timing attack complete!';
+            
+            var output = '<div style="background: #0a0a0a; border: 1px solid #333; padding: 15px; margin-top: 15px;">';
+            output += '<h4 style="color: #00ff00; margin-bottom: 15px;">TIMING ATTACK RESULTS</h4>';
+            output += '<p><strong>Discovered Token:</strong> <span style="color: #ff4444; font-size: 16px;">' + token + '</span></p>';
+            output += '<table style="width: 100%; margin-top: 15px; border-collapse: collapse;">';
+            output += '<tr style="border-bottom: 1px solid #333;"><th style="padding: 8px;">Pos</th><th style="padding: 8px;">Char</th><th style="padding: 8px;">Time</th></tr>';
+            
+            for (var i = 0; i < results.length; i++) {
+                var r = results[i];
+                output += '<tr><td style="padding: 8px;">' + r.position + '</td><td style="padding: 8px; color: #00ff00;">' + r.char + '</td><td style="padding: 8px;">' + r.time + 'ms</td></tr>';
+            }
+            
+            output += '</table>';
+            output += '<button onclick="useToken(\'' + token + '\')" style="margin-top: 15px;">USE DISCOVERED TOKEN</button>';
+            output += '</div>';
+            
+            document.getElementById('timingResults').innerHTML = output;
+        }
+
+        function useToken(token) {
+            document.getElementById('adminToken').value = token;
+            verifyToken(token);
+        }
+
+        function toggleDebug() {
+            var panel = document.getElementById('debugPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateDebug() {
+            document.getElementById('sessionId').textContent = gameState.sessionId;
+            document.getElementById('requestCount').textContent = gameState.requestCount;
+            document.getElementById('xssInjected').textContent = gameState.xssInjected ? 'Yes' : 'No';
+            document.getElementById('dataLeaked').textContent = gameState.adminDataLeaked ? 'Yes' : 'No';
+        }
+
+        document.getElementById('sessionId').textContent = gameState.sessionId;
+        console.log('[ECHO CHAMBER CTF] - Hard Web Challenge');
+        console.log('Steps: 1) Find injection in API Preview, 2) Inject XSS in Admin panel, 3) Get leaked hint, 4) Run timing attack, 5) Submit token for flag!');
+    </script>
+</body>
+</html>
